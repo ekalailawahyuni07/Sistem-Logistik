@@ -1,0 +1,32 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('notifikasi', function (Blueprint $table) {
+            $table->id('id_notifikasi');
+            $table->foreignId('id_user')->constrained('users', 'id_user')->onDelete('cascade');
+            $table->foreignId('id_transaksi')->nullable()->constrained('transaksi_material', 'id_transaksi')->onDelete('set null');
+            $table->text('pesan');
+            $table->enum('status_baca', ['belum', 'sudah'])->default('belum');
+            $table->datetime('tgl_notifikasi');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('notifikasi');
+    }
+};

@@ -1,0 +1,33 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('material', function (Blueprint $table) {
+            $table->id('id_material');
+            $table->foreignId('id_cluster')->constrained('cluster', 'id_cluster')->onDelete('cascade');
+            $table->string('kode_material', 50);
+            $table->string('nama_material', 100);
+            $table->string('jenis_material', 50)->nullable();
+            $table->string('satuan', 20)->nullable();
+            $table->text('keterangan')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('material');
+    }
+};

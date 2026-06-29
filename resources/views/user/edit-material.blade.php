@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Material</title>
+    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="logo">
+        <img src="{{ asset('images/logo-tkm.png') }}" alt="Logo PT">
+    </div>
+
+    <div class="profile">
+        <div class="avatar">👤</div>
+        <h4>{{ Auth::user()->nama_user }}</h4>
+        <p>{{ Auth::user()->email }}</p>
+    </div>
+
+    <div class="menu">
+        <a href="{{ route('dashboard') }}">Dashboard</a>
+        <a href="{{ route('data.material') }}">Data Material</a>
+        <a href="{{ route('material.masuk') }}">Material Masuk</a>
+        <a href="{{ route('material.keluar') }}">Material Keluar</a>
+        <a href="{{ route('stok.material') }}">Stok Material</a>
+        <a href="{{ route('cluster') }}">Cluster</a>
+        <a href="{{ route('surat.jalan') }}">Surat Jalan</a>
+    </div>
+
+    <div class="logout">
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="logout-btn">🚪 Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="content">
+    <div class="topbar">
+        <h1>✏️ Edit Material</h1>
+        <input type="text" placeholder="🔍 Cari material...">
+        <h2>👤 Hello, {{ Auth::user()->nama_user }}! (Petugas)</h2>
+    </div>
+
+    <div class="form-card">
+        <div class="form-header">
+            <div class="form-icon">✏️</div>
+            <div>
+                <h2>Edit Material</h2>
+                <p>Perbarui informasi material pada form di bawah ini.</p>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ route('data.material.update', $material->id_material) }}">
+            @csrf
+            @method('PUT')
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Kode Material</label>
+                    <input type="text" name="kode_material" value="{{ old('kode_material', $material->kode_material) }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Nama Material</label>
+                    <input type="text" name="nama_material" value="{{ old('nama_material', $material->nama_material) }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Jenis Material</label>
+                    <input type="text" name="jenis_material" value="{{ old('jenis_material', $material->jenis_material) }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Satuan</label>
+                    <input type="text" name="satuan" value="{{ old('satuan', $material->satuan) }}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Keterangan</label>
+                <textarea name="keterangan" rows="5">{{ old('keterangan', $material->keterangan) }}</textarea>
+            </div>
+
+            <div class="form-actions">
+                <a href="{{ route('data.material') }}" class="btn-kembali">← Kembali</a>
+
+                <div>
+                    <button type="reset" class="btn-reset">Reset</button>
+                    <button type="submit" class="btn-update">✓ Update</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
