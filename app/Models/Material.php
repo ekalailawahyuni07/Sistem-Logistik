@@ -25,6 +25,10 @@ class Material extends Model
 
     public function transaksiMaterial()
     {
-        return $this->hasMany(TransaksiMaterial::class, 'id_material', 'id_material');
+        return $this->hasMany(
+            TransaksiMaterial::class,
+            'id_material',
+            'id_material'
+        );
     }
 }

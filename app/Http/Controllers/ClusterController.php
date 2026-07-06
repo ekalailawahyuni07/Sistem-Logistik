@@ -67,6 +67,12 @@ class ClusterController extends Controller
     {
         $cluster = Cluster::findOrFail($id);
 
-        return view('user.view-cluster', compact('cluster'));
+        $materialKeluar = \App\Models\TransaksiMaterial::with('material')
+            ->where('jenis_transaksi', 'keluar')
+            ->where('id_cluster', $id)
+            ->orderBy('tgl_transaksi', 'desc')
+            ->get();
+
+        return view('user.view-cluster', compact('cluster', 'materialKeluar'));
     }
 }

@@ -25,6 +25,7 @@
         <a href="{{ route('material.keluar') }}">Material Keluar</a>
         <a href="{{ route('stok.material') }}">Stok Material</a>
         <a href="{{ route('cluster') }}">Cluster</a>
+        <a href="{{ route('dokumen') }}">Dokumen</a>
         <a href="{{ route('surat.jalan') }}">Surat Jalan</a>
     </div>
 
@@ -52,7 +53,7 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('material.masuk.store') }}">
+        <form method="POST" action="{{ route('material.masuk.store') }}" enctype="multipart/form-data">
             @csrf
 
             <div class="form-grid">
@@ -87,7 +88,7 @@
                     <tbody id="materialBody">
                         <tr>
                             <td>
-                                <select name="id_material[]" class="select-material" required onchange="isiSatuan(this)">
+                                <select name="id_material[]" class="select-material" onchange="isiSatuan(this)" required>
                                     <option value="">-- Pilih Material --</option>
                                     @foreach($materials as $material)
                                         <option 
@@ -100,11 +101,11 @@
                             </td>
 
                             <td>
-                                <input type="number" name="jumlah[]" min="1" required>
+                                <input type="number" name="jumlah[]" min="1" placeholder="Masukkan jumlah" required>
                             </td>
 
                             <td>
-                                <input type="text" name="satuan[]" class="satuan-field" readonly>
+                                <input type="text" class="satuan-field" readonly>
                             </td>
 
                             <td>
@@ -118,7 +119,19 @@
                     </tbody>
                 </table>
             </div>
+            
+            <div class="form-grid" style="margin: 20px 28px;">
+                <div class="form-group">
+                    <label>Upload Foto Dokumentasi</label>
+                    <input type="file" name="foto_dokumentasi[]" multiple accept="image/*">
+                </div>
 
+                <div class="form-group">
+                    <label>Upload Dokumen</label>
+                    <input type="file" name="dokumen[]" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                </div>
+            </div>
+            
             <div class="form-actions">
                 <a href="{{ route('material.masuk') }}" class="btn-kembali">← Kembali</a>
 
@@ -165,8 +178,12 @@
     }
 </script>
 <script>
-function konfirmasiLogout() {
-    return confirm("Apakah Anda yakin ingin logout?");
+function isiSatuan(select) {
+    let selected = select.options[select.selectedIndex];
+    let satuan = selected.getAttribute('data-satuan') || '';
+
+    let row = select.closest('.material-row');
+    row.querySelector('.satuan-field').value = satuan;
 }
 </script>
 </body>

@@ -12,11 +12,13 @@
     <img src="{{ asset('images/logo-tkm.png') }}" alt="Logo PT">
 </div>
 
-    <div class="profile">
-        <div class="avatar">👤</div>
-        <h4>{{ Auth::user()->nama_user }}</h4>
-        <p>{{ Auth::user()->email }}</p>
-    </div>
+    <a href="{{ route('profile.edit') }}" class="profile-link">
+        <div class="profile">
+            <div class="avatar">👤</div>
+            <h4>{{ Auth::user()->nama_user }}</h4>
+            <p>{{ Auth::user()->email }}</p>
+        </div>
+    </a>
 
     <div class="menu">
         <a href="{{ route('dashboard') }}">Dashboard</a>
@@ -25,6 +27,7 @@
         <a href="{{ route('material.keluar') }}">Material Keluar</a>
         <a href="{{ route('stok.material') }}">Stok Material</a>
         <a href="{{ route('cluster') }}">Cluster</a>
+        <a href="{{ route('dokumen') }}">Dokumen</a>
         <a href="{{ route('surat.jalan') }}">Surat Jalan</a>
     </div>
 

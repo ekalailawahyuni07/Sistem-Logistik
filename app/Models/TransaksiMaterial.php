@@ -12,10 +12,13 @@ class TransaksiMaterial extends Model
     protected $fillable = [
         'id_user',
         'id_material',
+        'id_cluster',
         'jenis_transaksi',
         'jumlah',
         'tgl_transaksi',
         'no_bukti',
+        'project',
+        'nama_penerima',
         'keterangan',
     ];
 
@@ -27,6 +30,11 @@ class TransaksiMaterial extends Model
     public function material()
     {
         return $this->belongsTo(Material::class, 'id_material', 'id_material');
+    }
+
+    public function cluster()
+    {
+        return $this->belongsTo(Cluster::class, 'id_cluster', 'id_cluster');
     }
 
     public function dokumentasiTransaksi()

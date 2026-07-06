@@ -25,6 +25,7 @@
         <a href="{{ route('material.keluar') }}">Material Keluar</a>
         <a href="{{ route('stok.material') }}">Stok Material</a>
         <a href="{{ route('cluster') }}" class="active">Cluster</a>
+        <a href="{{ route('dokumen') }}">Dokumen</a>
         <a href="{{ route('surat.jalan') }}">Surat Jalan</a>
     </div>
 
@@ -56,7 +57,7 @@
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>ID Cluster</th>
+                    <th>Kode Cluster</th>
                     <th>Nama Cluster</th>
                     <th>Aksi</th>
                 </tr>
@@ -66,7 +67,7 @@
                 @forelse($clusters as $cluster)
                     <tr>
                         <td>{{ $loop->iteration }}</td>
-                        <td>{{ $cluster->id_cluster }}</td>
+                        <td>{{ $cluster->kode_cluster }}</td>
                         <td>{{ $cluster->nama_cluster }}</td>
                         <td>
                             <a href="{{ route('cluster.edit', $cluster->id_cluster) }}" class="btn-edit">

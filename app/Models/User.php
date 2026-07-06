@@ -30,6 +30,9 @@ class User extends Authenticatable
         'email',
         'password',
         'status_validasi',
+        'foto_profile',
+        'no_telp',
+        'alamat',
     ];
 
     /**
