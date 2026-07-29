@@ -1,55 +1,80 @@
-<section class="space-y-6">
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Delete Account') }}
-        </h2>
+<section class="delete-user-section">
 
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
-        </p>
-    </header>
+    <div class="profile-form-header">
+        <div class="profile-icon" style="background: #fee2e2; color: #dc2626;">🗑️</div>
+        <div>
+            <h2 style="color: #dc2626;">Hapus Akun / Profile</h2>
+            <p>Setelah akun Anda dihapus, semua data dan informasi akun akan dihapus secara permanen.</p>
+        </div>
+    </div>
 
-    <x-danger-button
-        x-data=""
-        x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
-    >{{ __('Delete Account') }}</x-danger-button>
+    <div style="padding-top: 20px;">
+        <button type="button" onclick="bukaModalHapusAkun()" style="background-color: #dc2626 !important; color: #ffffff !important; border: none !important; padding: 12px 24px !important; border-radius: 8px !important; font-weight: 600 !important; font-size: 15px !important; cursor: pointer !important; display: inline-flex !important; align-items: center !important; gap: 8px !important; text-decoration: none !important;">
+            🗑️ Hapus Akun Saya
+        </button>
+    </div>
 
-    <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
-        <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
-            @csrf
-            @method('delete')
+    <!-- Modal Konfirmasi Hapus Akun -->
+    <div id="modalHapusAkun" class="modal-hapus" style="{{ $errors->userDeletion->isNotEmpty() ? 'display:flex;' : 'display:none;' }}">
+        <div class="modal-box">
+            <div class="modal-icon logout-icon" style="background-color: #fee2e2 !important; color: #dc2626 !important;">
+                ⚠️
+            </div>
 
-            <h2 class="text-lg font-medium text-gray-900">
-                {{ __('Are you sure you want to delete your account?') }}
-            </h2>
+            <h2 style="color: #061b40 !important; margin: 0 0 10px 0 !important; font-size: 22px !important; font-weight: 700 !important;">Konfirmasi Hapus Akun</h2>
 
-            <p class="mt-1 text-sm text-gray-600">
-                {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
+            <p style="color: #4b5563 !important; font-size: 14px !important; margin-bottom: 20px !important; line-height: 1.5 !important;">
+                Apakah Anda yakin ingin menghapus akun Anda? Semua data akan dihapus secara permanen. Masukkan password Anda untuk mengonfirmasi.
             </p>
 
-            <div class="mt-6">
-                <x-input-label for="password" value="{{ __('Password') }}" class="sr-only" />
+            <form method="post" action="{{ route('profile.destroy') }}" id="formHapusAkun">
+                @csrf
+                @method('delete')
 
-                <x-text-input
-                    id="password"
-                    name="password"
-                    type="password"
-                    class="mt-1 block w-3/4"
-                    placeholder="{{ __('Password') }}"
-                />
+                <div class="form-group" style="margin-bottom: 20px; text-align: left;">
+                    <label style="color: #000000 !important; display: block; margin-bottom: 8px; font-weight: 600;">Password Saat Ini</label>
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Masukkan password Anda"
+                        style="width: 100% !important; padding: 12px !important; border: 1px solid #cbd5e1 !important; border-radius: 8px !important; box-sizing: border-box !important; color: #000000 !important; background-color: #ffffff !important;"
+                        required>
 
-                <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />
-            </div>
+                    @if($errors->userDeletion->get('password'))
+                        <small class="error-text" style="color: #dc2626 !important; display: block; margin-top: 5px;">
+                            {{ $errors->userDeletion->get('password')[0] }}
+                        </small>
+                    @endif
+                </div>
 
-            <div class="mt-6 flex justify-end">
-                <x-secondary-button x-on:click="$dispatch('close')">
-                    {{ __('Cancel') }}
-                </x-secondary-button>
+                <div class="modal-actions" style="display: flex !important; justify-content: center !important; gap: 12px !important; margin-top: 20px !important;">
+                    <button
+                        type="button"
+                        onclick="tutupModalHapusAkun()"
+                        style="background-color: #6b7280 !important; color: #ffffff !important; border: none !important; padding: 10px 22px !important; border-radius: 8px !important; font-weight: bold !important; cursor: pointer !important;"
+                    >
+                        Batal
+                    </button>
 
-                <x-danger-button class="ms-3">
-                    {{ __('Delete Account') }}
-                </x-danger-button>
-            </div>
-        </form>
-    </x-modal>
+                    <button
+                        type="submit"
+                        style="background-color: #dc2626 !important; color: #ffffff !important; border: none !important; padding: 10px 22px !important; border-radius: 8px !important; font-weight: bold !important; cursor: pointer !important;"
+                    >
+                        Ya, Hapus Akun
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    function bukaModalHapusAkun() {
+        document.getElementById("modalHapusAkun").style.display = "flex";
+    }
+
+    function tutupModalHapusAkun() {
+        document.getElementById("modalHapusAkun").style.display = "none";
+    }
+    </script>
+
 </section>

@@ -20,30 +20,33 @@
 
     <div class="menu">
         <a href="{{ route('dashboard') }}">Dashboard</a>
-        <a href="{{ route('data.material') }}">Data Material</a>
-        <a href="{{ route('material.masuk') }}">Material Masuk</a>
+        <a href="{{ route('material.masuk') }}">Master Data Material</a>
+        <a href="{{ route('material.masuk') }}"class="{{ request()->routeIs('material.masuk') || request()->routeIs('material.masuk.create') || request()->routeIs('material.masuk.edit') ? 'active' : '' }}">Material Masuk</a>
         <a href="{{ route('material.keluar') }}">Material Keluar</a>
         <a href="{{ route('stok.material') }}">Stok Material</a>
-        <a href="{{ route('cluster') }}">Cluster</a>
-        <a href="{{ route('dokumen') }}">Dokumen</a>
+        <a href="{{ route('cluster') }}">Daftar Kluster</a>
+        <a href="{{ route('dokumen') }}">Daftar Dokumen</a>
         <a href="{{ route('surat.jalan') }}">Surat Jalan</a>
     </div>
 
     <div class="logout">
-        <form method="POST" action="{{ route('logout') }}" onsubmit="return konfirmasiLogout()">
+        <form method="POST"
+            action="{{ route('logout') }}"
+            id="logoutForm">
             @csrf
-            <button type="submit" class="logout-btn">🚪 Logout</button>
+
+            <button
+                type="button"
+                class="logout-btn"
+                onclick="bukaModalLogout()"
+            >
+                Keluar
+            </button>
         </form>
     </div>
 </div>
 
 <div class="content">
-    <div class="topbar">
-        <h1>📥 Tambah Material Masuk</h1>
-        <input type="text" placeholder="🔍 Cari material masuk...">
-        <h2>👤 Hello, {{ Auth::user()->nama_user }}! (Petugas)</h2>
-    </div>
-
     <div class="form-card">
         <div class="form-header">
             <div class="form-icon">📥</div>
@@ -56,18 +59,55 @@
         <form method="POST" action="{{ route('material.masuk.store') }}" enctype="multipart/form-data">
             @csrf
 
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Tanggal</label>
-                    <input type="date" name="tanggal" required>
-                </div>
+        <div class="form-grid">
 
-                <div class="form-group">
-                    <label>No Bukti / Surat Jalan</label>
-                    <input type="text" name="no_bukti" placeholder="Contoh: 1654/EMR/NRO-GDR/11/2025" required>
-                </div>
+            <div class="form-group">
+                <label>
+                    Tanggal <span style="color:red;">*</span>
+                </label>
+
+                <input
+                    type="date"
+                    name="tanggal"
+                    required>
             </div>
 
+            <div class="form-group">
+                <label>
+                    No Surat Jalan <span style="color:red;">*</span>
+                </label>
+
+                <input
+                    type="text"
+                    name="no_bukti"
+                    placeholder="Contoh: 1654/EMR/NRO-GDR/11/2025"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    Project <span style="color:red;">*</span>
+                </label>
+
+                <select name="project" required>
+
+                    <option value="">
+                        -- Pilih Project --
+                    </option>
+
+                    @foreach($projects as $project)
+
+                        <option value="{{ $project->project }}">
+                            {{ $project->project }}
+                        </option>
+
+                    @endforeach
+
+                </select>
+
+            </div>
+
+        </div>
             <div class="material-detail">
                 <div class="detail-header">
                     <h3>Detail Material Masuk</h3>
@@ -77,11 +117,23 @@
                 <table class="material-table">
                     <thead>
                         <tr>
-                            <th style="width: 35%;">Material</th>
-                            <th style="width: 15%;">Jumlah</th>
-                            <th style="width: 15%;">Satuan</th>
+                            <th style="width:35%;">
+                                Material <span style="color:red;">*</span>
+                            </th>
+
+                            <th style="width:15%;">
+                                Jumlah <span style="color:red;">*</span>
+                            </th>
+
+                            <th style="width:15%;">
+                                Satuan
+                            </th>
+
                             <th>Keterangan</th>
-                            <th style="width: 10%;">Aksi</th>
+
+                            <th style="width:10%;">
+                                Aksi
+                            </th>
                         </tr>
                     </thead>
 
@@ -122,13 +174,39 @@
             
             <div class="form-grid" style="margin: 20px 28px;">
                 <div class="form-group">
-                    <label>Upload Foto Dokumentasi</label>
-                    <input type="file" name="foto_dokumentasi[]" multiple accept="image/*">
+
+                    <label>Upload Foto Dokumentasi<span style="color:red;">*</span></label>
+
+                    <input
+                        type="file"
+                        name="foto_dokumentasi[]"
+                        multiple
+                        accept=".jpg,.jpeg,.png"
+                        required
+                    >
+
+                    <small style="color:#6b7280;font-size:13px;">
+                        (JPEG / PNG)
+                    </small>
+
                 </div>
 
                 <div class="form-group">
-                    <label>Upload Dokumen</label>
-                    <input type="file" name="dokumen[]" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+
+                    <label>Upload Dokumen <span style="color:red;">*</span></label>
+
+                    <input
+                        type="file"
+                        name="dokumen[]"
+                        multiple
+                        accept=".pdf,.doc,.docx"
+                        required
+                    >
+
+                    <small style="color:#6b7280;font-size:13px;">
+                        (Surat Jalan)
+                    </small>
+
                 </div>
             </div>
             
@@ -142,6 +220,48 @@
             </div>
         </form>
     </div>
+</div>
+
+<div id="modalLogout" class="modal-hapus">
+
+    <div class="modal-box">
+
+        <div class="modal-icon logout-icon">
+            🚪
+        </div>
+
+        <h2>Keluar</h2>
+
+        <p>
+            Apakah Anda yakin ingin keluar dari sistem?
+        </p>
+
+        <div class="modal-warning-text">
+            Anda harus masuk kembali untuk mengakses sistem.
+        </div>
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                class="btn-batal-modal"
+                onclick="tutupModalLogout()"
+            >
+                Batal
+            </button>
+
+            <button
+                type="button"
+                class="btn-logout-modal"
+                onclick="submitLogout()"
+            >
+                Ya, Logout
+            </button>
+
+        </div>
+
+    </div>
+
 </div>
 
 <script>
@@ -178,12 +298,34 @@
     }
 </script>
 <script>
-function isiSatuan(select) {
-    let selected = select.options[select.selectedIndex];
-    let satuan = selected.getAttribute('data-satuan') || '';
+function bukaModalLogout() {
 
-    let row = select.closest('.material-row');
-    row.querySelector('.satuan-field').value = satuan;
+    document.getElementById("modalLogout").style.display="flex";
+
+}
+
+function tutupModalLogout() {
+
+    document.getElementById("modalLogout").style.display="none";
+
+}
+
+function submitLogout(){
+
+    document.getElementById("logoutForm").submit();
+
+}
+
+window.onclick=function(event){
+
+    let modal=document.getElementById("modalLogout");
+
+    if(event.target==modal){
+
+        tutupModalLogout();
+
+    }
+
 }
 </script>
 </body>

@@ -4,14 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Cluster;
 use Illuminate\Http\Request;
+use App\Models\Area;
 
 class AdminClusterController extends Controller
 {
     public function index()
     {
-        $clusters = Cluster::orderBy('id_cluster')->get();
+        $clusters = Cluster::with('area')
+            ->orderBy('id_cluster')
+            ->get();
 
-        return view('admin.cluster', compact('clusters'));
+        $areas = Area::orderBy('nama_area')->get();
+        return view('admin.cluster', compact('clusters', 'areas'));
     }
 
     public function create()
@@ -54,7 +58,7 @@ class AdminClusterController extends Controller
 
     public function show($id)
     {
-        $cluster = Cluster::findOrFail($id);
+        $cluster = Cluster::with('area')->findOrFail($id);
 
         $materialKeluar = \App\Models\TransaksiMaterial::with('material')
             ->where('jenis_transaksi', 'keluar')
@@ -63,5 +67,16 @@ class AdminClusterController extends Controller
             ->get();
 
         return view('admin.view-cluster', compact('cluster', 'materialKeluar'));
+    }
+
+    public function destroy($id)
+    {
+        $cluster = Cluster::findOrFail($id);
+
+        $cluster->delete();
+
+        return redirect()
+            ->route('admin.cluster')
+            ->with('success', 'Cluster berhasil dihapus.');
     }
 }

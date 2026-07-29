@@ -22,12 +22,15 @@
 
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Tanggal</label>
-                    <input type="date" name="tanggal" value="{{ $transaksi->tgl_transaksi }}" required>
+                    <label>
+                        Tanggal <span style="color:red;">*</span>
+                    </label>
+                    <input type="date" name="tanggal" value="{{ \Carbon\Carbon::parse($transaksi->tgl_transaksi)->format('Y-m-d') }}" required>                
                 </div>
-
                 <div class="form-group">
-                    <label>No Bukti / Surat Jalan</label>
+                    <label>
+                        No Surat Jalan <span style="color:red;">*</span>
+                    </label>
                     <input type="text" name="no_bukti" value="{{ $transaksi->no_bukti }}" required>
                 </div>
 
@@ -46,7 +49,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Jumlah</label>
+                    <label>
+                        Jumlah <span style="color:red;">*</span>
+                    </label>
                     <input type="number" name="jumlah" min="1" value="{{ $transaksi->jumlah }}" required>
                 </div>
 
@@ -56,7 +61,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Cluster</label>
+                    <label>
+                        Cluster <span style="color:red;">*</span>
+                    </label>
                     <select name="id_cluster" required>
                         @foreach($clusters as $cluster)
                             <option
@@ -69,14 +76,53 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Project</label>
-                    <input type="text" name="project" value="{{ $transaksi->project }}" required>
+                    <label>
+                        Project <span style="color:red;">*</span>
+                    </label>
+
+                    <select name="project" required>
+
+                        <option value="">
+                            -- Pilih Project --
+                        </option>
+
+                        @foreach($projects as $project)
+
+                            <option
+                                value="{{ $project->project }}"
+                                {{ $transaksi->project == $project->project ? 'selected' : '' }}>
+
+                                {{ $project->project }}
+
+                            </option>
+
+                        @endforeach
+
+                    </select>
+
                 </div>
 
                 <div class="form-group">
-                    <label>Nama Penerima</label>
+                    <label>
+                        Nama Penerima <span style="color:red;">*</span>
+                    </label>
                     <input type="text" name="nama_penerima" value="{{ $transaksi->nama_penerima }}" required>
                 </div>
+
+                <div class="form-group">
+                    <label>
+                        Yang Menerima <span style="color:red;">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="nama_sopir"
+                        class="form-control"
+                        value="{{ old('nama_sopir', $transaksi->nama_sopir) }}"
+                        placeholder="Masukkan nama yang menerima"
+                        required>
+                </div>
+
             </div>
 
             <div class="form-group">
@@ -121,14 +167,22 @@
             </div>
 
             <div class="form-grid" style="margin: 20px 28px;">
-                <div class="form-group">
-                    <label>Tambah Foto Dokumentasi Baru</label>
-                    <input type="file" name="foto_dokumentasi[]" multiple accept="image/*">
-                </div>
+                <div class="form-group" style="margin-top:20px;">
 
-                <div class="form-group">
-                    <label>Tambah Dokumen Baru</label>
-                    <input type="file" name="dokumen[]" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                    <label>
+                        Upload Foto Dokumentasi Pengeluaran Material Baru 
+                    </label>
+
+                    <input
+                        type="file"
+                        name="dokumen[]"
+                        multiple
+                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+
+                    <small style="color:#6b7280;font-size:13px;">
+                        (Opsional - PDF / DOC / DOCX / JPG / PNG)
+                    </small>
+
                 </div>
             </div>
 

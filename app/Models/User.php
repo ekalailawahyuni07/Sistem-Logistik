@@ -63,23 +63,29 @@ class User extends Authenticatable
      */
     public function role()
     {
-        return $this->belongsTo(Role::class, 'id_role', 'id_role');
+        return $this->belongsTo(
+            Role::class,
+            'id_role',
+            'id_role'
+        );
     }
 
-    /**
-     * Relasi ke tabel area
-     */
     public function area()
     {
-        return $this->belongsTo(Area::class, 'id_area', 'id_area');
+        return $this->belongsTo(
+            Area::class,
+            'id_area',
+            'id_area'
+        );
     }
 
-    /**
-     * Relasi ke tabel transaksi_material
-     */
     public function transaksiMaterial()
     {
-        return $this->hasMany(TransaksiMaterial::class, 'id_user', 'id_user');
+        return $this->hasMany(
+            TransaksiMaterial::class,
+            'id_user',
+            'id_user'
+        );
     }
 
     /**

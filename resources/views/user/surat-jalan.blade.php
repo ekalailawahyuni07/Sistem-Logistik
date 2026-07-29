@@ -20,32 +20,52 @@
 
     <div class="menu">
         <a href="{{ route('dashboard') }}">Dashboard</a>
-        <a href="{{ route('data.material') }}">Data Material</a>
+        <a href="{{ route('data.material') }}">Master Data Material</a>
         <a href="{{ route('material.masuk') }}">Material Masuk</a>
         <a href="{{ route('material.keluar') }}">Material Keluar</a>
         <a href="{{ route('stok.material') }}">Stok Material</a>
-        <a href="{{ route('cluster') }}">Cluster</a>
-        <a href="{{ route('dokumen') }}">Dokumen</a>
+        <a href="{{ route('cluster') }}">Daftar Kluster</a>
+        <a href="{{ route('dokumen') }}">Daftar Dokumen</a>
         <a href="{{ route('surat.jalan') }}" class="active">Surat Jalan</a>
     </div>
 
     <div class="logout">
-        <form method="POST" action="{{ route('logout') }}" onsubmit="return konfirmasiLogout()">
+        <form method="POST"
+            action="{{ route('logout') }}"
+            id="logoutForm">
             @csrf
-            <button type="submit" class="logout-btn">🚪 Logout</button>
+
+            <button
+                type="button"
+                class="logout-btn"
+                onclick="bukaModalLogout()"
+            >
+                Keluar
+            </button>
         </form>
     </div>
 </div>
 
 <div class="content">
     <div class="topbar">
-        <h1>🚚 Surat Jalan</h1>
-        <input type="text" id="searchSuratJalan" placeholder="🔍 Cari surat jalan..." onkeyup="cariSuratJalan()">
-        <h2>👤 Hello, {{ Auth::user()->nama_user }}! (Petugas)</h2>
+        <h1>Surat Jalan</h1>
+        <h2>👤 Halo, {{ Auth::user()->nama_user }}! (Petugas)</h2>
     </div>
 
     <div class="card">
-        <h2>Daftar Surat Jalan</h2>
+        <div class="material-card-header">
+            <h2>Daftar Surat Jalan Area {{ Auth::user()->area->nama_area ?? '' }}</h2>
+
+            <div class="material-toolbar">
+                <input
+                    type="text"
+                    id="searchSuratJalan"
+                    class="material-search"
+                    placeholder="🔍 Cari surat jalan..."
+                    onkeyup="cariSuratJalan()"
+                >
+            </div>
+        </div>
 
         <table class="material-table" id="tabelSuratJalan">
             <thead>
@@ -54,7 +74,7 @@
                     <th>Tanggal</th>
                     <th>No Surat Jalan</th>
                     <th>Project</th>
-                    <th>Cluster</th>
+                    <th>Kluster</th>
                     <th>Penerima</th>
                     <th>Material</th>
                     <th>Jumlah</th>
@@ -91,6 +111,48 @@
     </div>
 </div>
 
+<div id="modalLogout" class="modal-hapus">
+
+    <div class="modal-box">
+
+        <div class="modal-icon logout-icon">
+            🚪
+        </div>
+
+        <h2>Keluar</h2>
+
+        <p>
+            Apakah Anda yakin ingin keluar dari sistem?
+        </p>
+
+        <div class="modal-warning-text">
+            Anda harus masuk kembali untuk mengakses sistem.
+        </div>
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                class="btn-batal-modal"
+                onclick="tutupModalLogout()"
+            >
+                Batal
+            </button>
+
+            <button
+                type="button"
+                class="btn-logout-modal"
+                onclick="submitLogout()"
+            >
+                Ya, Logout
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
 <script>
 function cariSuratJalan() {
     let input = document.getElementById("searchSuratJalan").value.toLowerCase();
@@ -101,8 +163,34 @@ function cariSuratJalan() {
     });
 }
 
-function konfirmasiLogout() {
-    return confirm("Apakah Anda yakin ingin logout?");
+function bukaModalLogout() {
+
+    document.getElementById("modalLogout").style.display="flex";
+
+}
+
+function tutupModalLogout() {
+
+    document.getElementById("modalLogout").style.display="none";
+
+}
+
+function submitLogout(){
+
+    document.getElementById("logoutForm").submit();
+
+}
+
+window.onclick=function(event){
+
+    let modal=document.getElementById("modalLogout");
+
+    if(event.target==modal){
+
+        tutupModalLogout();
+
+    }
+
 }
 </script>
 

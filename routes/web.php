@@ -17,17 +17,116 @@ use App\Http\Controllers\AdminClusterController;
 use App\Http\Controllers\AdminDokumenController;
 use App\Http\Controllers\AdminSuratJalanController;
 use App\Http\Controllers\AdminNotifikasiController;
+use App\Http\Controllers\AdminVerifikasiUserController;
+use App\Http\Controllers\AdminAreaController;
+use App\Http\Controllers\AdminProfileController;
 
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
 Route::get('/dashboard', function () {
-    $totalMasuk = \App\Models\TransaksiMaterial::where('jenis_transaksi', 'masuk')->sum('jumlah');
-    $totalKeluar = \App\Models\TransaksiMaterial::where('jenis_transaksi', 'keluar')->sum('jumlah');
+    $user = auth()->user();
+
+    if ($user->id_role == 1) {
+        return redirect()->route('admin.dashboard');
+    }
+
+    $area = \App\Models\Area::find($user->id_area);
+
+    $queryArea = \App\Models\TransaksiMaterial::where(
+        'id_area',
+        $user->id_area
+    );
+
+    $totalMasuk = (clone $queryArea)
+        ->where('transaksi_material.jenis_transaksi', 'masuk')
+        ->sum('transaksi_material.jumlah');
+
+    $totalKeluar = (clone $queryArea)
+        ->where('transaksi_material.jenis_transaksi', 'keluar')
+        ->sum('transaksi_material.jumlah');
+
     $totalStock = $totalMasuk - $totalKeluar;
 
-    return view('user.dashboard', compact('totalMasuk', 'totalKeluar', 'totalStock'));
+    $materialMenipis = \App\Models\Material::query()
+        ->join('cluster', 'material.id_cluster', '=', 'cluster.id_cluster')
+        ->where('cluster.id_area', $user->id_area)
+        ->where('material.stok', '>', 0)
+        ->where('material.stok', '<=', 10)
+        ->count();
+
+    $totalMaterial = \App\Models\Material::query()
+        ->join('cluster', 'material.id_cluster', '=', 'cluster.id_cluster')
+        ->where('cluster.id_area', $user->id_area)
+        ->count();
+
+    $stokHabis = \App\Models\Material::query()
+        ->join('cluster', 'material.id_cluster', '=', 'cluster.id_cluster')
+        ->where('cluster.id_area', $user->id_area)
+        ->where('material.stok', 0)
+        ->count();
+
+    $grafikMasuk = [];
+    $grafikKeluar = [];
+
+    $transaksiTerbaru = \App\Models\TransaksiMaterial::where(
+        'id_area',
+        $user->id_area
+    )->max('tgl_transaksi');
+
+    $tanggalAcuan = $transaksiTerbaru
+        ? \Carbon\Carbon::parse($transaksiTerbaru)
+        : now();
+
+    $tahun = $tanggalAcuan->year;
+    $bulan = $tanggalAcuan->month;
+    $akhirBulan = $tanggalAcuan->copy()->endOfMonth()->day;
+
+    $rentangMinggu = [
+        [1, 7],
+        [8, 14],
+        [15, 21],
+        [22, $akhirBulan],
+    ];
+
+    foreach ($rentangMinggu as [$tanggalAwal, $tanggalAkhir]) {
+        $awal = \Carbon\Carbon::create(
+            $tahun,
+            $bulan,
+            $tanggalAwal
+        )->startOfDay();
+
+        $akhir = \Carbon\Carbon::create(
+            $tahun,
+            $bulan,
+            $tanggalAkhir
+        )->endOfDay();
+
+        $grafikMasuk[] = \App\Models\TransaksiMaterial::query()
+        ->where('id_area', $user->id_area)
+        ->where('jenis_transaksi', 'masuk')
+        ->whereBetween('tgl_transaksi', [$awal, $akhir])
+        ->sum('jumlah');
+
+        $grafikKeluar[] = \App\Models\TransaksiMaterial::query()
+        ->where('id_area', $user->id_area)
+        ->where('jenis_transaksi', 'keluar')
+        ->whereBetween('tgl_transaksi', [$awal, $akhir])
+        ->sum('jumlah');
+        }
+
+    return view('user.dashboard', compact(
+        'area',
+        'totalMasuk',
+        'totalKeluar',
+        'totalStock',
+        'materialMenipis',
+        'totalMaterial',
+        'stokHabis',
+        'grafikMasuk',
+        'grafikKeluar'
+    ));
 })->middleware(['auth'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -123,8 +222,15 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/admin/material-masuk/{id}', [AdminMaterialMasukController::class, 'update'])
         ->name('admin.material.masuk.update');
     
+    Route::delete(
+        '/admin/material-masuk/dokumen/{id}',
+        [AdminMaterialMasukController::class, 'destroyDokumen']
+    )->name('admin.material.masuk.dokumen.destroy');
+
     Route::delete('/admin/material-masuk/{id}', [AdminMaterialMasukController::class, 'destroy'])
         ->name('admin.material.masuk.destroy');
+
+    Route::get('/material/project/{project}', [AdminMaterialMasukController::class, 'getMaterialProject']);
 
     // MATERIAL KELUAR ADMIN
     Route::get('/admin/material-keluar', [AdminMaterialKeluarController::class, 'index'])
@@ -141,6 +247,21 @@ Route::middleware(['auth'])->group(function () {
 
     Route::put('/admin/material-keluar/{id}', [AdminMaterialKeluarController::class, 'update'])
         ->name('admin.material.keluar.update');
+
+    Route::delete('/admin/material-keluar/{id}', [AdminMaterialKeluarController::class, 'destroy'])
+        ->name('admin.material.keluar.destroy');
+    
+    Route::delete('/admin/material-keluar/dokumen/{id}',[AdminMaterialKeluarController::class, 'destroyDokumen'])
+        ->name('admin.material.keluar.dokumen.destroy');
+
+    Route::get('/admin/get-cluster/{id_area}', [AdminMaterialKeluarController::class, 'getCluster'])
+        ->name('admin.get.cluster');
+    
+    Route::get('/admin/get-project/{id_area}',[AdminMaterialKeluarController::class, 'getProject'])
+        ->name('admin.get.project');
+
+    Route::get('/admin/get-material/{id_area}/{project}',[AdminMaterialKeluarController::class, 'getMaterial'])
+        ->name('admin.get.material');
 
     // STOK MATERIAL ADMIN
     Route::get('/admin/stok-material', [AdminStokMaterialController::class, 'index'])
@@ -165,6 +286,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/cluster/{id}/view', [AdminClusterController::class, 'show'])
         ->name('admin.cluster.show');
 
+    Route::delete('/admin/cluster/{id}', [AdminClusterController::class, 'destroy'])
+    ->name('admin.cluster.destroy');
+
     Route::get('/admin/dokumen', [AdminDokumenController::class, 'index'])
         ->name('admin.dokumen');
 
@@ -175,6 +299,44 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/surat-jalan/{id}/view', [AdminSuratJalanController::class, 'show'])
         ->name('admin.surat.jalan.show');
 
+        // VERIFIKASI USER ADMIN
+    Route::get('/admin/verifikasi-user', [AdminVerifikasiUserController::class, 'index'])
+    ->name('admin.verifikasi.user');
+
+    Route::patch('/admin/verifikasi-user/{id}/setujui', [AdminVerifikasiUserController::class, 'setujui'])
+    ->name('admin.verifikasi.user.setujui');
+
+    Route::patch('/admin/verifikasi-user/{id}/tolak', [AdminVerifikasiUserController::class, 'tolak'])
+    ->name('admin.verifikasi.user.tolak');
+
+    Route::delete('/admin/verifikasi-user/{id}', [AdminVerifikasiUserController::class, 'destroy'])
+    ->name('admin.verifikasi.user.destroy');
+
+    // =============================
+    // KELOLA AREA
+    // =============================
+
+    Route::get('/admin/kelola-area', [AdminAreaController::class, 'index'])
+    ->name('admin.kelola.area');
+
+    Route::post('/admin/kelola-area/store', [AdminAreaController::class, 'storeArea'])
+    ->name('admin.kelola.area.store');
+
+    Route::put('/admin/kelola-area/{id}/update', [AdminAreaController::class, 'updateArea'])
+    ->name('admin.kelola.area.update');
+
+    Route::delete('/admin/kelola-area/{id}/delete', [AdminAreaController::class, 'destroyArea'])
+    ->name('admin.kelola.area.destroy');
+
+    Route::post('/admin/kelola-area/{idArea}/cluster/store', [AdminAreaController::class, 'storeCluster'])
+    ->name('admin.kelola.area.cluster.store');
+
+    Route::put('/admin/kelola-area/cluster/{idCluster}/update', [AdminAreaController::class, 'updateCluster'])
+    ->name('admin.kelola.area.cluster.update');
+
+    Route::delete('/admin/kelola-area/cluster/{idCluster}/delete', [AdminAreaController::class, 'destroyCluster'])
+    ->name('admin.kelola.area.cluster.destroy');
+
     // Notifikasi
     Route::get('/admin/notifikasi', function () {
         return view('admin.notifikasi');
@@ -183,6 +345,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/notifikasi', [AdminNotifikasiController::class, 'index'])
     ->name('admin.notifikasi');
 
+    //Profile Admin
+    Route::get('/admin/profile', [AdminProfileController::class, 'edit'])
+        ->name('admin.profile.edit');
+
+    Route::patch('/admin/profile', [AdminProfileController::class, 'update'])
+        ->name('admin.profile.update');
+
+    Route::put('/admin/profile/password', [AdminProfileController::class, 'updatePassword'])
+        ->name('admin.profile.password');
+
+    Route::get('/admin/stok-material/pdf', [AdminStokMaterialController::class, 'exportPdf'])
+        ->name('admin.stok.material.pdf');
 });
 
 

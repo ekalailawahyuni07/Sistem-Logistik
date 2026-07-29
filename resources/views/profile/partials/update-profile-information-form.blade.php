@@ -13,8 +13,6 @@
         @method('patch')
 
         <div class="form-upload-area">
-            <label class="form-label">Foto Profile</label>
-
             <div class="upload-wrapper">
                 @if($user->foto_profile)
                     <img
@@ -23,8 +21,6 @@
                         class="upload-preview"
                         alt="Foto Profile">
                 @else
-                    <div id="previewAvatar" class="upload-avatar">👤</div>
-
                     <img
                         id="previewFoto"
                         src=""
@@ -35,7 +31,7 @@
 
                 <label for="foto_profile" class="upload-box">
                     <span>☁️</span>
-                    <strong>Pilih atau upload foto</strong>
+                    <strong>Pilih atau upload foto profile</strong>
                     <small>PNG, JPG, JPEG maks. 2MB</small>
                 </label>
 
@@ -55,7 +51,7 @@
 
         <div class="profile-form-grid">
             <div class="form-group">
-                <label>Nama User</label>
+                <label>Nama User <span style="color:red;">*</span></label>
                 <div class="input-icon">
                     <span>👤</span>
                     <input type="text" name="nama_user" value="{{ old('nama_user', $user->nama_user) }}" required>
@@ -66,7 +62,7 @@
             </div>
 
             <div class="form-group">
-                <label>Email</label>
+                <label>Email <span style="color:red;">*</span></label>
                 <div class="input-icon">
                     <span>✉️</span>
                     <input type="email" name="email" value="{{ old('email', $user->email) }}" required>
@@ -77,11 +73,27 @@
             </div>
 
             <div class="form-group">
-                <label>Nomor Telepon</label>
+                <label>
+                    Nomor Telepon <span style="color:red;">*</span>
+                </label>
+
                 <div class="input-icon">
                     <span>📞</span>
-                    <input type="text" name="no_telp" value="{{ old('no_telp', $user->no_telp) }}" placeholder="Masukkan nomor telepon">
+
+                    <input
+                        type="text"
+                        name="no_telp"
+                        value="{{ old('no_telp', $user->no_telp) }}"
+                        placeholder="Contoh: 081234567890"
+                        minlength="11"
+                        maxlength="13"
+                        required>
                 </div>
+
+                <small style="color:#6b7280;">
+                    Minimal 11 digit, maksimal 13 digit.
+                </small>
+
                 @error('no_telp')
                     <small class="error-text">{{ $message }}</small>
                 @enderror

@@ -119,14 +119,16 @@
 
             <div>
                 <p><strong>Kepada</strong> : {{ $transaksi->nama_penerima ?? '-' }}</p>
-                <p><strong>No. HP</strong> : ................................</p>
+                <p><strong>No. HP</strong> : {{ $transaksi->no_hp ?? '-' }}</p>
                 <p><strong>No. SJ</strong> : {{ $transaksi->no_bukti }}</p>
             </div>
         </div>
 
         <p>
             Kami kirimkan barang-barang di bawah ini dengan kendaraan
-            ................................, plat nomor ................................
+            <strong>{{ $transaksi->kendaraan ?? '-' }}</strong>,
+            plat nomor
+            <strong>{{ $transaksi->plat_nomor ?? '-' }}</strong>.
         </p>
 
         <table class="surat-table">
@@ -164,23 +166,55 @@
         </table>
 
         <div class="ttd-area">
+
             <div class="ttd-box">
+
                 <p>Yang Menyerahkan,</p>
-                <br><br><br>
-                <p>(........................)</p>
+
+                <div class="ttd-space"></div>
+
+                <div class="ttd-name">
+                    {{ $transaksi->user->nama_user ?? '-' }}
+                </div>
+
+                <div class="ttd-role">
+                    Petugas
+                </div>
+
             </div>
 
             <div class="ttd-box">
+
                 <p>Yang Menerima,</p>
-                <br><br><br>
-                <p>(........................)</p>
+
+                <div class="ttd-space"></div>
+
+                <div class="ttd-name">
+                    {{ $transaksi->nama_sopir ?? '-' }}
+                </div>
+
+                <div class="ttd-role">
+                    Penerima
+                </div>
+
             </div>
 
             <div class="ttd-box">
+
                 <p>Mengetahui,</p>
-                <br><br><br>
-                <p>(........................)</p>
+
+                <div class="ttd-space"></div>
+
+                <div class="ttd-name">
+                    Dimas Bimantoro
+                </div>
+
+                <div class="ttd-role">
+                    Admin Gudang
+                </div>
+
             </div>
+
         </div>
 
     </div>

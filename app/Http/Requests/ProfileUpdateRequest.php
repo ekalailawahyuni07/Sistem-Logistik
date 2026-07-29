@@ -17,12 +17,55 @@ class ProfileUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nama_user' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:100', Rule::unique(User::class)->ignore($this->user()->id_user, 'id_user')],
+            'nama_user' => [
+                'required',
+                'string',
+                'max:100'
+            ],
 
-            'foto_profile' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
-            'no_telp' => ['nullable', 'string', 'max:20'],
-            'alamat' => ['nullable', 'string'],
+            'email' => [
+                'required',
+                'string',
+                'lowercase',
+                'email',
+                'max:100',
+                Rule::unique(User::class)
+                    ->ignore($this->user()->id_user, 'id_user')
+            ],
+
+            'foto_profile' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png',
+                'max:2048'
+            ],
+
+            'no_telp' => [
+                'nullable',
+                'regex:/^[0-9]{11,13}$/'
+            ],
+
+            'alamat' => [
+                'nullable',
+                'string'
+            ],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'nama_user.required' => 'Nama user wajib diisi.',
+
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email sudah digunakan.',
+
+            'foto_profile.image' => 'File harus berupa gambar.',
+            'foto_profile.mimes' => 'Foto harus berformat JPG, JPEG, atau PNG.',
+            'foto_profile.max' => 'Ukuran foto maksimal 2 MB.',
+
+            'no_telp.regex' => 'Nomor telepon harus terdiri dari 11 sampai 13 digit angka.',
         ];
     }
 }

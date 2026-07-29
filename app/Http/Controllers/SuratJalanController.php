@@ -8,8 +8,20 @@ class SuratJalanController extends Controller
 {
     public function index()
     {
-        $suratJalan = TransaksiMaterial::with(['material', 'cluster'])
+        $user = auth()->user();
+
+        $suratJalan = TransaksiMaterial::with([
+                'material',
+                'cluster',
+                'user'
+            ])
             ->where('jenis_transaksi', 'keluar')
+            ->where(function ($query) use ($user) {
+                $query->where('id_area', $user->id_area)
+                    ->orWhereHas('cluster', function ($q) use ($user) {
+                        $q->where('id_area', $user->id_area);
+                    });
+            })
             ->orderBy('id_transaksi', 'asc')
             ->get()
             ->unique('no_bukti');
@@ -19,11 +31,27 @@ class SuratJalanController extends Controller
 
     public function show($id)
     {
-        $transaksi = TransaksiMaterial::with(['material', 'cluster'])
+        $transaksi = TransaksiMaterial::with([
+                'material',
+                'cluster',
+                'user'
+            ])
             ->findOrFail($id);
 
-        $items = TransaksiMaterial::with(['material', 'cluster'])
+        $areaId = $transaksi->id_area ?? auth()->user()->id_area;
+
+        $items = TransaksiMaterial::with([
+                'material',
+                'cluster',
+                'user'
+            ])
             ->where('jenis_transaksi', 'keluar')
+            ->where(function ($query) use ($areaId) {
+                $query->where('id_area', $areaId)
+                    ->orWhereHas('cluster', function ($q) use ($areaId) {
+                        $q->where('id_area', $areaId);
+                    });
+            })
             ->where('no_bukti', $transaksi->no_bukti)
             ->orderBy('id_transaksi', 'asc')
             ->get();

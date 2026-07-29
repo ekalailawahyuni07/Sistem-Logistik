@@ -12,7 +12,7 @@
         <img src="{{ asset('images/logo-tkm.png') }}" alt="Logo PT">
     </div>
 
-    <a href="{{ route('profile.edit') }}" class="profile-link">
+    <a href="{{ route('admin.profile.edit') }}"class="profile-link {{ request()->routeIs('admin.profile.*') ? 'active' : '' }}">
         <div class="profile">
             @if(Auth::user()->foto_profile)
                 <img src="{{ asset('storage/' . Auth::user()->foto_profile) }}" class="profile-img">
@@ -28,38 +28,41 @@
     <div class="menu">
         <a href="{{ route('admin.dashboard') }}">Dashboard</a>
         <a href="{{ route('admin.verifikasi.user') }}">Verifikasi User</a>
-        <a href="{{ route('admin.kelola.area') }}">Kelola Area</a>
-        <a href="{{ route('admin.data.material') }}">Data Material</a>
+        <a href="{{ route('admin.kelola.area') }}">Kelola Area & Kluster</a>
+        <a href="{{ route('admin.cluster') }}">Daftar Kluster</a>
+        <a href="{{ route('admin.data.material') }}">Master Data Material</a>
         <a href="{{ route('admin.material.masuk') }}" class="active">Material Masuk</a>
         <a href="{{ route('admin.material.keluar') }}">Material Keluar</a>
         <a href="{{ route('admin.stok.material') }}">Stok Material</a>
-        <a href="{{ route('admin.cluster') }}">Cluster</a>
         <a href="{{ route('admin.dokumen') }}">Dokumen</a>
         <a href="{{ route('admin.surat.jalan') }}">Surat Jalan</a>
-        <a href="{{ route('admin.notifikasi') }}">Notifikasi</a>
+        <a href="{{ route('admin.notifikasi') }}">Log Keluar Masuk</a>
     </div>
 
     <div class="logout">
-        <form method="POST" action="{{ route('logout') }}" onsubmit="return konfirmasiLogout()">
+        <form method="POST"
+            action="{{ route('logout') }}"
+            id="logoutForm">
             @csrf
-            <button type="submit" class="logout-btn">Logout</button>
+
+            <button
+                type="button"
+                class="logout-btn"
+                onclick="bukaModalLogout()"
+            >
+                Keluar
+            </button>
         </form>
     </div>
 </div>
 
 <div class="content">
-    <div class="topbar">
-        <h1>Tambah Material Masuk</h1>
-        <input type="text" placeholder="🔍 Cari material masuk...">
-        <h2>👤 Hello, {{ Auth::user()->nama_user }} (Admin)</h2>
-    </div>
-
     <div class="form-card">
         <div class="form-header">
             <div class="form-icon">📥</div>
             <div>
-                <h2>Tambah Material Masuk Admin</h2>
-                <p>Isi tanggal dan no bukti, lalu tambahkan beberapa material yang masuk.</p>
+                <h2>Tambah Material Masuk</h2>
+                <p>Isi informasi penerimaan material secara lengkap sebelum menyimpan data ke dalam sistem</p>
             </div>
         </div>
 
@@ -68,16 +71,48 @@
 
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Tanggal</label>
+                    <label>
+                        Tanggal <span style="color:red;">*</span>
+                    </label>
                     <input type="date" name="tanggal" required>
                 </div>
 
                 <div class="form-group">
-                    <label>No Bukti / Surat Jalan</label>
+                    <label>Area <span class="required">*</span></label>
+                    <select name="id_area" required>
+                        <option value="">-- Pilih Area --</option>
+                        @foreach($areas as $area)
+                            <option value="{{ $area->id_area }}">
+                                {{ $area->nama_area }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        No Surat Jalan <span style="color:red;">*</span>
+                    </label>
                     <input type="text" name="no_bukti" placeholder="Contoh: 1654/EMR/NRO-GDR/11/2025" required>
                 </div>
-            </div>
 
+                <div class="form-group">
+                    <label>
+                        Project <span style="color:red;">*</span>
+                    </label>
+
+                    <select name="project" id="projectSelect" required>
+                        <option value="">
+                            -- Pilih Project --
+                        </option>
+                        @foreach($projects as $project)
+                            <option value="{{ $project->project }}">
+                                {{ $project->project }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
             <div class="material-detail">
                 <div class="detail-header">
                     <h3>Detail Material Masuk</h3>
@@ -87,9 +122,17 @@
                 <table class="material-table">
                     <thead>
                         <tr>
-                            <th style="width: 35%;">Material</th>
-                            <th style="width: 15%;">Jumlah</th>
-                            <th style="width: 15%;">Satuan</th>
+                            <th style="width:35%;">
+                                Material <span style="color:red;">*</span>
+                            </th>
+
+                            <th style="width:15%;">
+                                Jumlah <span style="color:red;">*</span>
+                            </th>
+
+                            <th style="width:15%;">
+                                Satuan
+                            </th>
                             <th>Keterangan</th>
                             <th style="width: 10%;">Aksi</th>
                         </tr>
@@ -98,11 +141,20 @@
                     <tbody id="materialBody">
                         <tr>
                             <td>
-                                <select name="id_material[]" class="select-material" onchange="isiSatuan(this)" required>
+                                <select
+                                    name="id_material[]"
+                                    class="select-material material-select"
+                                    onchange="isiSatuan(this)"
+                                    required>
                                     <option value="">-- Pilih Material --</option>
                                     @foreach($materials as $material)
-                                        <option value="{{ $material->id_material }}" data-satuan="{{ $material->satuan }}">
-                                            [{{ $material->kode_material }}] {{ $material->nama_material }}
+                                        <option
+                                            value="{{ $material->id_material }}"
+                                            data-project="{{ $material->project }}"
+                                            data-satuan="{{ $material->satuan }}">
+
+                                            [{{ $material->kode_material }}]
+                                            {{ $material->nama_material }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -132,13 +184,37 @@
 
             <div class="form-grid" style="margin: 20px 28px;">
                 <div class="form-group">
-                    <label>Upload Foto Dokumentasi</label>
-                    <input type="file" name="foto_dokumentasi[]" multiple accept="image/*">
+                    <label>
+                        Upload Foto Dokumentasi Penerimaan Material<span style="color:red;">*</span>
+                    </label>
+
+                    <input
+                        type="file"
+                        name="foto_dokumentasi[]"
+                        multiple
+                        accept=".jpg,.jpeg,.png"
+                        required>
+
+                    <small style="color:#6b7280;font-size:13px;">
+                        (JPEG / PNG)
+                    </small>
                 </div>
 
                 <div class="form-group">
-                    <label>Upload Dokumen</label>
-                    <input type="file" name="dokumen[]" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                    <label>
+                        Upload Dokumen Surat Jalan<span style="color:red;">*</span>
+                    </label>
+
+                    <input
+                        type="file"
+                        name="dokumen[]"
+                        multiple
+                        accept=".pdf,.doc,.docx"
+                        required>
+
+                    <small style="color:#6b7280;font-size:13px;">
+                        (Surat Jalan)
+                    </small>
                 </div>
             </div>
 
@@ -156,7 +232,67 @@
     </div>
 </div>
 
+<div id="modalLogout" class="modal-hapus">
+
+    <div class="modal-box">
+
+        <div class="modal-icon logout-icon">
+            🚪
+        </div>
+
+        <h2>Keluar</h2>
+
+        <p>
+            Apakah Anda yakin ingin keluar dari sistem?
+        </p>
+
+        <div class="modal-warning-text">
+            Anda harus masuk kembali untuk mengakses sistem.
+        </div>
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                class="btn-batal-modal"
+                onclick="tutupModalLogout()"
+            >
+                Batal
+            </button>
+
+            <button
+                type="button"
+                class="btn-logout-modal"
+                onclick="submitLogout()"
+            >
+                Ya, Logout
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div id="notifBaris" class="notif-baris">
+    Minimal harus ada 1 baris material.
+</div>
+
 <script>
+let semuaMaterial = [];
+
+window.onload = function () {
+
+    const select = document.querySelector('.material-select');
+
+    semuaMaterial = Array.from(select.options);
+
+    document
+        .getElementById('projectSelect')
+        .addEventListener('change', filterMaterial);
+
+} 
+
 function isiSatuan(select) {
     let selected = select.options[select.selectedIndex];
     let satuan = selected.getAttribute('data-satuan') || '';
@@ -166,33 +302,125 @@ function isiSatuan(select) {
 }
 
 function tambahBaris() {
+
     let tbody = document.getElementById('materialBody');
+
     let barisPertama = tbody.querySelector('tr');
+
     let barisBaru = barisPertama.cloneNode(true);
 
     barisBaru.querySelectorAll('input').forEach(input => {
         input.value = '';
     });
 
-    barisBaru.querySelector('select').selectedIndex = 0;
+    let select = barisBaru.querySelector(".material-select");
+
+    select.selectedIndex = 0;
 
     tbody.appendChild(barisBaru);
+
+    filterMaterial();
+
 }
 
 function hapusBaris(button) {
-    let tbody = document.getElementById('materialBody');
 
-    if (tbody.rows.length > 1) {
-        button.closest('tr').remove();
-    } else {
-        alert('Minimal harus ada 1 baris material.');
+    const tbody = document.getElementById('materialBody');
+
+    if (tbody.rows.length <= 1) {
+
+        tampilPesan(
+            'Minimal harus ada 1 baris material.',
+            '#dc3545'
+        );
+
+        return;
     }
+
+    button.closest('tr').remove();
 }
 
-function konfirmasiLogout() {
-    return confirm("Apakah Anda yakin ingin logout?");
+function bukaModalLogout() {
+
+    document.getElementById("modalLogout").style.display="flex";
+
+}
+
+function tutupModalLogout() {
+
+    document.getElementById("modalLogout").style.display="none";
+
+}
+
+function submitLogout(){
+
+    document.getElementById("logoutForm").submit();
+
+}
+
+window.onclick=function(event){
+
+    let modal=document.getElementById("modalLogout");
+
+    if(event.target==modal){
+
+        tutupModalLogout();
+
+    }
+
+}
+
+function tampilPesan(text, warna="#dc3545"){
+
+    const notif=document.getElementById("notifBaris");
+
+    notif.innerHTML=text;
+
+    notif.style.background=warna;
+
+    notif.style.display="block";
+
+    setTimeout(function(){
+
+        notif.style.display="none";
+
+    },2500);
+
+}
+
+function filterMaterial(){
+
+    let project =
+        document.getElementById("projectSelect").value;
+
+    document.querySelectorAll(".material-select").forEach(function(select){
+
+        let valueSekarang = select.value;
+
+        select.innerHTML = "";
+
+        let awal = document.createElement("option");
+        awal.value = "";
+        awal.text = "-- Pilih Material --";
+        select.appendChild(awal);
+
+        semuaMaterial.forEach(function(opt){
+
+            if(opt.value=="") return;
+
+            if(project=="" || opt.dataset.project==project){
+
+                select.appendChild(opt.cloneNode(true));
+
+            }
+
+        });
+
+        select.value = valueSekarang;
+
+    });
+
 }
 </script>
-
 </body>
 </html>

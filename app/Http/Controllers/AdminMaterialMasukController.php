@@ -7,24 +7,53 @@ use App\Models\TransaksiMaterial;
 use App\Models\DokumentasiTransaksi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use App\Models\Cluster;
+use App\Models\Area;
 
 class AdminMaterialMasukController extends Controller
 {
     public function index()
     {
-        $masuk = TransaksiMaterial::with('material')
-            ->where('jenis_transaksi', 'masuk')
-            ->orderBy('id_transaksi', 'asc')
-            ->get();
+        $areas = Area::with([
+            'transaksiMaterial' => function ($query) {
 
-        return view('admin.material-masuk', compact('masuk'));
+                $query->where('jenis_transaksi', 'masuk')
+                    ->with('material')
+                    ->orderBy('id_transaksi', 'asc');
+
+            }
+        ])
+        ->orderBy('nama_area')
+        ->get();
+
+        return view(
+            'admin.material-masuk',
+            compact('areas')
+        );
     }
 
     public function create()
     {
-        $materials = Material::orderBy('kode_material', 'asc')->get();
+        $materials = Material::orderBy('nama_material')->get();
 
-        return view('admin.tambah-material-masuk', compact('materials'));
+        $areas = Area::orderBy('nama_area')->get();
+
+        $projects = Material::select('project')
+            ->whereNotNull('project')
+            ->where('project','!=','')
+            ->distinct()
+            ->orderBy('project')
+            ->get();
+
+        return view(
+            'admin.tambah-material-masuk',
+            compact(
+                'materials',
+                'projects',
+                'areas'
+            )
+        );
     }
 
     public function store(Request $request)
@@ -38,7 +67,7 @@ class AdminMaterialMasukController extends Controller
             $transaksi = TransaksiMaterial::create([
                 'id_user'         => Auth::user()->id_user,
                 'id_material'     => $id_material,
-                'id_cluster'      => $request->id_cluster,
+                'id_area' => $request->id_area,
                 'jenis_transaksi' => 'masuk',
                 'jumlah'          => $request->jumlah[$index],
                 'tgl_transaksi'   => $request->tanggal,
@@ -88,15 +117,32 @@ class AdminMaterialMasukController extends Controller
 
     public function edit($id)
     {
-        $transaksi = TransaksiMaterial::with('dokumentasiTransaksi')
-            ->findOrFail($id);
+        $transaksi = TransaksiMaterial::with([
+            'material',
+            'area',
+            'dokumentasi'
+        ])->findOrFail($id);
 
-        $materials = Material::orderBy('kode_material', 'asc')->get();
+        $materials = Material::orderBy('kode_material')->get();
 
-        return view('admin.edit-material-masuk', compact(
-            'transaksi',
-            'materials'
-        ));
+        $areas = Area::orderBy('nama_area')->get();
+
+        $projects = Material::select('project')
+            ->whereNotNull('project')
+            ->where('project', '!=', '')
+            ->distinct()
+            ->orderBy('project')
+            ->get();
+
+        return view(
+            'admin.edit-material-masuk',
+            compact(
+                'transaksi',
+                'materials',
+                'projects',
+                'areas'
+            )
+        );
     }
 
     public function update(Request $request, $id)
@@ -104,9 +150,11 @@ class AdminMaterialMasukController extends Controller
         $transaksi = TransaksiMaterial::findOrFail($id);
 
         $transaksi->update([
+            'id_area'       => $request->id_area,
             'id_material'   => $request->id_material,
             'tgl_transaksi' => $request->tanggal,
             'no_bukti'      => $request->no_bukti,
+            'project'       => $request->project,
             'jumlah'        => $request->jumlah,
             'keterangan'    => $request->keterangan,
         ]);
@@ -157,5 +205,31 @@ class AdminMaterialMasukController extends Controller
         return redirect()
             ->route('admin.material.masuk')
             ->with('success', 'Data material masuk berhasil dihapus.');
+    }
+    public function destroyDokumen($id)
+    {
+        $dokumen = DokumentasiTransaksi::findOrFail($id);
+
+        if (
+            $dokumen->file_dokumentasi &&
+            Storage::disk('public')->exists($dokumen->file_dokumentasi)
+        ) {
+            Storage::disk('public')->delete($dokumen->file_dokumentasi);
+        }
+
+        $dokumen->delete();
+
+        return back()->with(
+            'success',
+            'Dokumen berhasil dihapus.'
+        );
+    }
+    public function getMaterialProject($project)
+    {
+        $materials = Material::where('project', $project)
+            ->orderBy('nama_material')
+            ->get();
+
+        return response()->json($materials);
     }
 }

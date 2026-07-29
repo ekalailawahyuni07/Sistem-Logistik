@@ -12,7 +12,7 @@
         <img src="{{ asset('images/logo-tkm.png') }}" alt="Logo PT">
     </div>
 
-    <a href="{{ route('profile.edit') }}" class="profile-link">
+    <a href="{{ route('admin.profile.edit') }}"class="profile-link {{ request()->routeIs('admin.profile.*') ? 'active' : '' }}">
         <div class="profile">
             @if(Auth::user()->foto_profile)
                 <img src="{{ asset('storage/' . Auth::user()->foto_profile) }}" class="profile-img">
@@ -22,132 +22,243 @@
 
             <h4>{{ Auth::user()->nama_user }}</h4>
             <p>{{ Auth::user()->email }}</p>
-            <small style="color:#FFD54F;font-weight:bold;">Administrator</small>
         </div>
     </a>
 
     <div class="menu">
-        <a href="{{ route('admin.dashboard') }}">🏠 Dashboard</a>
-        <a href="{{ route('admin.verifikasi.user') }}">👥 Verifikasi User</a>
-        <a href="{{ route('admin.kelola.area') }}">🌍 Kelola Area</a>
-        <a href="{{ route('admin.data.material') }}">📦 Data Material</a>
-        <a href="{{ route('admin.material.masuk') }}">📥 Material Masuk</a>
-        <a href="{{ route('admin.material.keluar') }}">📤 Material Keluar</a>
-        <a href="{{ route('admin.stok.material') }}" class="active">📊 Stok Material</a>
-        <a href="{{ route('admin.cluster') }}">🏢 Cluster</a>
-        <a href="{{ route('admin.dokumen') }}">📁 Dokumen</a>
-        <a href="{{ route('admin.surat.jalan') }}">🚚 Surat Jalan</a>
-        <a href="{{ route('admin.notifikasi') }}">🔔 Notifikasi</a>
+        <a href="{{ route('admin.dashboard') }}">Dashboard</a>
+        <a href="{{ route('admin.verifikasi.user') }}">Verifikasi User</a>
+        <a href="{{ route('admin.kelola.area') }}">Kelola Area & Kluster</a>
+        <a href="{{ route('admin.cluster') }}">Daftar Kluster</a>
+        <a href="{{ route('admin.data.material') }}">Master Data Material</a>
+        <a href="{{ route('admin.material.masuk') }}">Material Masuk</a>
+        <a href="{{ route('admin.material.keluar') }}">Material Keluar</a>
+        <a href="{{ route('admin.stok.material') }}" class="active">Stok Material</a>
+        <a href="{{ route('admin.dokumen') }}">Dokumen</a>
+        <a href="{{ route('admin.surat.jalan') }}">Surat Jalan</a>
+        <a href="{{ route('admin.notifikasi') }}">Log Keluar Masuk</a>
     </div>
 
     <div class="logout">
-        <form method="POST" action="{{ route('logout') }}" onsubmit="return konfirmasiLogout()">
+        <form method="POST"
+            action="{{ route('logout') }}"
+            id="logoutForm">
             @csrf
-            <button type="submit" class="logout-btn">🚪 Logout</button>
+
+            <button
+                type="button"
+                class="logout-btn"
+                onclick="bukaModalLogout()"
+            >
+                Keluar
+            </button>
         </form>
     </div>
 </div>
 
-<div class="content">
+<div class="content stok-material-page">
     <div class="topbar">
-        <h1>📊 Stok Material</h1>
-        <input type="text" id="searchStok" placeholder="🔍 Cari stok material..." onkeyup="cariStok()">
-        <h2>👤 Hello, {{ Auth::user()->nama_user }} (Administrator)</h2>
-    </div>
-
-    <div class="summary-cards">
-        <div class="summary-box biru">
-            <h3>Total Material</h3>
-            <p>{{ $totalMaterial }}</p>
-        </div>
-
-        <div class="summary-box hijau">
-            <h3>Material IN</h3>
-            <p>{{ $totalMasuk }}</p>
-        </div>
-
-        <div class="summary-box merah">
-            <h3>Material OUT</h3>
-            <p>{{ $totalKeluar }}</p>
-        </div>
-
-        <div class="summary-box orange">
-            <h3>Total Stock</h3>
-            <p>{{ $totalStock }}</p>
-        </div>
-
-        <div class="summary-box kuning">
-            <h3>Stok Menipis</h3>
-            <p>{{ $stokMenipis }}</p>
-        </div>
+        <h1>Stok Material</h1>
+        <h2>👤 Halo, {{ Auth::user()->nama_user }} (Admin)</h2>
     </div>
 
     <div class="card">
-        <h2>Rekap Jurnal Logistik Area Pontianak</h2>
 
-        <table class="material-table" id="tabelStok">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Kode / Designator Material</th>
-                    <th>Nama Material</th>
-                    <th>Satuan</th>
-                    <th>Material IN</th>
-                    <th>Material OUT</th>
-                    <th>Stock</th>
-                    <th>Keterangan</th>
-                </tr>
-            </thead>
+        <div class="card-header">
 
-            <tbody>
-                @forelse($materials as $material)
-                    @php
-                        $masuk = $material->total_masuk ?? 0;
-                        $keluar = $material->total_keluar ?? 0;
-                        $stock = $masuk - $keluar;
-                    @endphp
+            <h2>Rekap Stok Material Berdasarkan Area</h2>
 
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $material->kode_material }}</td>
-                        <td>{{ $material->nama_material }}</td>
-                        <td>{{ $material->satuan }}</td>
-                        <td class="text-right">{{ $masuk }}</td>
-                        <td class="text-right">{{ $keluar }}</td>
+            <div class="stok-toolbar">
 
-                        <td class="text-right
-                            @if($stock <= 0)
-                                stock-habis
-                            @elseif($stock <= 10)
-                                stock-menipis
-                            @else
-                                stock-aman
-                            @endif
-                        ">
-                            {{ $stock }}
-                        </td>
+                <input
+                    type="text"
+                    id="searchStok"
+                    placeholder="🔍 Cari Material..."
+                    onkeyup="cariStok()">
 
-                        <td>
-                            @if($stock <= 0)
-                                Stok habis
-                            @elseif($stock <= 10)
-                                Stok menipis
-                            @else
-                                -
-                            @endif
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="8" class="text-center">
-                            Belum ada data material
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                <form method="GET" action="{{ route('admin.stok.material') }}">
+                    <select
+                        name="id_area"
+                        onchange="this.form.submit()">
+                        <option value="">Semua Area</option>
+                        @foreach($allAreas as $area)
+                            <option
+                                value="{{ $area->id_area }}"
+                                {{ request('id_area') == $area->id_area ? 'selected' : '' }}>
+                                {{ $area->nama_area }}
+                            </option>
+                        @endforeach
+                    </select>
+                </form>
+                <div class="export-dropdown">
+                    <button
+                        type="button"
+                        class="btn-pdf"
+                        onclick="toggleExportMenu()">
+                        Export PDF ▾
+                    </button>
+                    <div id="exportMenu" class="export-menu">
+                        <a href="{{ route('admin.stok.material.pdf') }}">
+                            📄 Export Semua Area
+                        </a>
+                        <a id="exportAreaBtn" href="#">
+                            📍 Export Area Dipilih
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        @foreach($areas as $area)
+
+        <div class="area-section">
+
+            <div class="area-header">
+
+                <h3>📍 {{ $area->nama_area }}</h3>
+
+                <span>
+                    Total Stock : {{ $area->total_stock }}
+                </span>
+
+            </div>
+
+            <div class="stok-table-wrapper">
+
+                <table class="material-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>No</th>
+                            <th>Kode Material</th>
+                            <th>Nama Material</th>
+                            <th>Satuan</th>
+                            <th>Material IN</th>
+                            <th>Material OUT</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    @forelse($area->materials as $material)
+
+                        @php
+                            $masuk = $material->total_masuk ?? 0;
+                            $keluar = $material->total_keluar ?? 0;
+                            $stock = $masuk - $keluar;
+                        @endphp
+
+                        <tr>
+
+                            <td>{{ $loop->iteration }}</td>
+
+                            <td>{{ $material->kode_material }}</td>
+
+                            <td>{{ $material->nama_material }}</td>
+
+                            <td>{{ $material->satuan }}</td>
+
+                            <td>{{ $masuk }}</td>
+
+                            <td>{{ $keluar }}</td>
+
+                            <td>{{ $stock }}</td>
+
+                            <td>
+
+                                @if($stock <= 0)
+
+                                    🔴 Habis
+
+                                @elseif($stock <= 10)
+
+                                    🟡 Menipis
+
+                                @else
+
+                                    🟢 Aman
+
+                                @endif
+
+                            </td>
+
+                        </tr>
+
+                    @empty
+
+                        <tr>
+
+                            <td colspan="8" class="text-center">
+
+                                Belum ada stok material
+
+                            </td>
+
+                        </tr>
+
+                    @endforelse
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        @endforeach
+
     </div>
 </div>
+
+<div id="modalLogout" class="modal-hapus">
+
+    <div class="modal-box">
+
+        <div class="modal-icon logout-icon">
+            🚪
+        </div>
+
+        <h2>Keluar</h2>
+
+        <p>
+            Apakah Anda yakin ingin keluar dari sistem?
+        </p>
+
+        <div class="modal-warning-text">
+            Anda harus masuk kembali untuk mengakses sistem.
+        </div>
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                class="btn-batal-modal"
+                onclick="tutupModalLogout()"
+            >
+                Batal
+            </button>
+
+            <button
+                type="button"
+                class="btn-logout-modal"
+                onclick="submitLogout()"
+            >
+                Ya, Logout
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
 
 <script>
 function cariStok() {
@@ -159,9 +270,76 @@ function cariStok() {
     });
 }
 
-function konfirmasiLogout() {
-    return confirm("Apakah Anda yakin ingin logout?");
+function bukaModalLogout() {
+
+    document.getElementById("modalLogout").style.display="flex";
+
 }
+
+function tutupModalLogout() {
+
+    document.getElementById("modalLogout").style.display="none";
+
+}
+
+function submitLogout(){
+
+    document.getElementById("logoutForm").submit();
+
+}
+
+window.onclick=function(event){
+
+    let modal=document.getElementById("modalLogout");
+
+    if(event.target==modal){
+
+        tutupModalLogout();
+
+    }
+
+}
+
+function toggleExportMenu(){
+
+    let menu = document.getElementById("exportMenu");
+
+    if(menu.style.display==="block"){
+
+        menu.style.display="none";
+
+    }else{
+
+        menu.style.display="block";
+
+    }
+
+    const selectArea = document.querySelector('select[name="id_area"]');
+    const exportAreaBtn = document.getElementById("exportAreaBtn");
+
+    function updateExportLink(){
+
+        const area = selectArea.value;
+
+        exportAreaBtn.href =
+            "{{ route('admin.stok.material.pdf') }}?id_area=" + area;
+
+    }
+
+    updateExportLink();
+
+    selectArea.addEventListener("change", updateExportLink);
+}
+
+window.addEventListener("click",function(e){
+
+    if(!e.target.closest(".export-dropdown")){
+
+        document.getElementById("exportMenu").style.display="none";
+
+    }
+
+});
 </script>
 
 </body>

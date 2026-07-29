@@ -19,6 +19,7 @@
             font-weight: bold;
             margin-bottom: 25px;
             text-transform: uppercase;
+            text-align: center;
         }
 
         .surat-info {
@@ -52,49 +53,51 @@
 
         .ttd-area {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: repeat(3,1fr);
+            gap: 30px;
             text-align: center;
-            margin-top: 60px;
+            margin-top: 70px;
         }
 
-        .ttd-box {
-            height: 120px;
+        .ttd-box{
+            min-height:140px;
         }
 
-        .btn-print {
-            background: #061b40;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-bottom: 15px;
+        .btn-print{
+            background:#061b40;
+            color:white;
+            border:none;
+            padding:10px 18px;
+            border-radius:6px;
+            cursor:pointer;
+            font-weight:bold;
         }
 
-        @media print {
+        @media print{
             .btn-print,
-            .btn-kembali {
-                display: none;
+            .btn-kembali{
+                display:none;
             }
 
-            body {
-                background: white;
+            body{
+                background:white;
             }
 
-            .surat-container {
-                border: 2px solid #333;
-                margin: 0;
-                max-width: 100%;
+            .surat-container{
+                margin:0;
+                max-width:100%;
             }
         }
+
     </style>
+
 </head>
 <body>
 
 <div class="content">
 
-    <div style="max-width:1000px; margin:30px auto 10px; display:flex; justify-content:space-between; align-items:center;">
+    <div style="max-width:1000px;margin:30px auto 10px;display:flex;justify-content:space-between;">
+
         <a href="{{ route('admin.surat.jalan') }}" class="btn-kembali">
             ← Kembali
         </a>
@@ -102,88 +105,171 @@
         <button onclick="window.print()" class="btn-print">
             🖨 Cetak Surat Jalan
         </button>
+
     </div>
 
     <div class="surat-container">
 
         <div class="surat-title">
-            SURAT JALAN/PENGAMBILAN MATERIAL
+            SURAT JALAN / PENGAMBILAN MATERIAL
         </div>
 
         <div class="surat-info">
+
             <div>
-                <p><strong>Tanggal</strong> : {{ $transaksi->tgl_transaksi }}</p>
-                <p><strong>Nama Proyek</strong> : {{ $transaksi->project ?? '-' }}</p>
-                <p><strong>Lokasi Proyek</strong> : {{ $transaksi->cluster->nama_cluster ?? '-' }}</p>
+
+                <p><strong>Tanggal</strong> :
+                    {{ $transaksi->tgl_transaksi }}
+                </p>
+
+                <p><strong>Nama Proyek</strong> :
+                    {{ $transaksi->project ?? '-' }}
+                </p>
+
+                <p><strong>Lokasi Proyek</strong> :
+                    {{ $transaksi->cluster->nama_cluster ?? '-' }}
+                </p>
+
             </div>
 
             <div>
-                <p><strong>Kepada</strong> : {{ $transaksi->nama_penerima ?? '-' }}</p>
-                <p><strong>No. HP</strong> : ................................</p>
-                <p><strong>No. SJ</strong> : {{ $transaksi->no_bukti }}</p>
+
+                <p><strong>Kepada</strong> :
+                    {{ $transaksi->nama_penerima ?? '-' }}
+                </p>
+
+                <p><strong>No. HP</strong> :
+                    {{ $transaksi->no_hp ?? '-' }}
+                </p>
+
+                <p><strong>No. SJ</strong> :
+                    {{ $transaksi->no_bukti }}
+                </p>
+
             </div>
+
         </div>
 
-        <p>
+        <p style="margin-top:15px;">
+
             Kami kirimkan barang-barang di bawah ini dengan kendaraan
-            ................................, plat nomor ................................
+
+            <strong>{{ $transaksi->kendaraan ?? '-' }}</strong>
+
+            plat nomor
+
+            <strong>{{ $transaksi->plat_nomor ?? '-' }}</strong>
+
         </p>
 
         <table class="surat-table">
+
             <thead>
-                <tr>
-                    <th>No.</th>
-                    <th>Nama Barang</th>
-                    <th>Volume</th>
-                    <th>Satuan</th>
-                    <th>Keterangan</th>
-                </tr>
+
+            <tr>
+
+                <th>No</th>
+                <th>Nama Barang</th>
+                <th>Volume</th>
+                <th>Satuan</th>
+                <th>Keterangan</th>
+
+            </tr>
+
             </thead>
 
             <tbody>
-                @foreach($items as $item)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $item->material->nama_material ?? '-' }}</td>
-                        <td>{{ $item->jumlah }}</td>
-                        <td>{{ $item->material->satuan ?? '-' }}</td>
-                        <td>{{ $item->keterangan ?? '' }}</td>
-                    </tr>
-                @endforeach
 
-                @for($i = $items->count(); $i < 8; $i++)
-                    <tr>
-                        <td>&nbsp;</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                @endfor
+            @foreach($items as $item)
+
+                <tr>
+
+                    <td>{{ $loop->iteration }}</td>
+
+                    <td>{{ $item->material->nama_material ?? '-' }}</td>
+
+                    <td>{{ $item->jumlah }}</td>
+
+                    <td>{{ $item->material->satuan ?? '-' }}</td>
+
+                    <td>{{ $item->keterangan ?? '-' }}</td>
+
+                </tr>
+
+            @endforeach
+
+            @for($i=$items->count();$i<8;$i++)
+
+                <tr>
+
+                    <td>&nbsp;</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+
+            @endfor
+
             </tbody>
+
         </table>
 
         <div class="ttd-area">
+
             <div class="ttd-box">
-                <p>Yang Menyerahkan,</p>
+
+                <p><strong>Yang Menyerahkan</strong></p>
+
                 <br><br><br>
-                <p>(........................)</p>
+
+                <p>
+                    <strong>
+                        {{ $transaksi->user->nama_user ?? '-' }}
+                    </strong>
+                </p>
+
+                <small>Petugas</small>
+
             </div>
 
             <div class="ttd-box">
-                <p>Yang Menerima,</p>
+
+                <p><strong>Yang Menerima</strong></p>
+
                 <br><br><br>
-                <p>(........................)</p>
+
+            <p>
+                <strong>
+                    {{ $transaksi->nama_sopir ?? '-' }}
+                </strong>
+            </p>
+
+            <small>Yang Menerima</small>
+
             </div>
 
             <div class="ttd-box">
-                <p>Mengetahui,</p>
+
+                <p><strong>Mengetahui</strong></p>
+
                 <br><br><br>
-                <p>(........................)</p>
+
+                <p>
+                    <strong>
+                        Dimas Bimantoro
+                    </strong>
+                </p>
+
+                <small>Admin Gudang</small>
+
             </div>
+
         </div>
 
     </div>
+
 </div>
 
 </body>

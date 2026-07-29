@@ -8,10 +8,14 @@ class AdminNotifikasiController extends Controller
 {
     public function index()
     {
-        $notifikasi = TransaksiMaterial::with(['material'])
-            ->orderBy('created_at', 'desc')
-            ->take(30)
-            ->get();
+        $query = TransaksiMaterial::with('material')
+            ->orderBy('created_at', 'desc');
+
+        if (request()->filled('tanggal')) {
+            $query->whereDate('created_at', request('tanggal'));
+        }
+
+        $notifikasi = $query->take(30)->get();
 
         return view('admin.notifikasi', compact('notifikasi'));
     }

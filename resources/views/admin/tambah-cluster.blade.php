@@ -13,7 +13,7 @@
         <img src="{{ asset('images/logo-tkm.png') }}" alt="Logo PT">
     </div>
 
-    <a href="{{ route('profile.edit') }}" class="profile-link">
+    <a href="{{ route('admin.profile.edit') }}"class="profile-link {{ request()->routeIs('admin.profile.*') ? 'active' : '' }}">
         <div class="profile">
 
             @if(Auth::user()->foto_profile)
@@ -25,32 +25,28 @@
             <h4>{{ Auth::user()->nama_user }}</h4>
             <p>{{ Auth::user()->email }}</p>
 
-            <small style="color:#FFD54F;font-weight:bold;">
-                Administrator
-            </small>
-
         </div>
     </a>
 
     <div class="menu">
-        <a href="{{ route('admin.dashboard') }}">🏠 Dashboard</a>
-        <a href="{{ route('admin.verifikasi.user') }}">👥 Verifikasi User</a>
-        <a href="{{ route('admin.kelola.area') }}">🌍 Kelola Area</a>
-        <a href="{{ route('admin.data.material') }}">📦 Data Material</a>
-        <a href="{{ route('admin.material.masuk') }}">📥 Material Masuk</a>
-        <a href="{{ route('admin.material.keluar') }}">📤 Material Keluar</a>
-        <a href="{{ route('admin.stok.material') }}">📊 Stok Material</a>
-        <a href="{{ route('admin.cluster') }}" class="active">🏢 Cluster</a>
-        <a href="{{ route('admin.dokumen') }}">📁 Dokumen</a>
-        <a href="{{ route('admin.surat.jalan') }}">🚚 Surat Jalan</a>
-        <a href="{{ route('admin.notifikasi') }}">🔔 Notifikasi</a>
+        <a href="{{ route('admin.dashboard') }}">Dashboard</a>
+        <a href="{{ route('admin.verifikasi.user') }}">Verifikasi User</a>
+        <a href="{{ route('admin.kelola.area') }}">Kelola Area & Kluster</a>
+        <a href="{{ route('admin.cluster') }}" class="active">Cluster</a>
+        <a href="{{ route('admin.data.material') }}">Master Data Material</a>
+        <a href="{{ route('admin.material.masuk') }}">Material Masuk</a>
+        <a href="{{ route('admin.material.keluar') }}">Material Keluar</a>
+        <a href="{{ route('admin.stok.material') }}">Stok Material</a>
+        <a href="{{ route('admin.dokumen') }}">Dokumen</a>
+        <a href="{{ route('admin.surat.jalan') }}">Surat Jalan</a>
+        <a href="{{ route('admin.notifikasi') }}">Log Keluar Masuk</a>
     </div>
 
     <div class="logout">
         <form method="POST" action="{{ route('logout') }}" onsubmit="return konfirmasiLogout()">
             @csrf
             <button type="submit" class="logout-btn">
-                🚪 Logout
+                Keluar
             </button>
         </form>
     </div>
@@ -62,7 +58,7 @@
     <div class="topbar">
         <h1>🏢 Tambah Cluster</h1>
         <input type="text" placeholder="🔍 Cari cluster...">
-        <h2>👤 Hello, {{ Auth::user()->nama_user }} (Administrator)</h2>
+        <h2>👤 Hello, {{ Auth::user()->nama_user }} (Admin)</h2>
     </div>
 
     <div class="form-card">
@@ -125,7 +121,7 @@
 
 <script>
 function konfirmasiLogout(){
-    return confirm("Apakah Anda yakin ingin logout?");
+    return confirm("Apakah Anda yakin ingin Keluar?");
 }
 </script>
 

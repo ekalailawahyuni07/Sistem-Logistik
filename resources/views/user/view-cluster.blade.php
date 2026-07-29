@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Detail Cluster</title>
+    <title>Detail Kluster</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
 </head>
 <body>
@@ -11,13 +11,13 @@
 
     <div class="card">
 
-        <h1>📋 Detail Cluster</h1>
+        <h1>📋 Detail Kluster</h1>
 
         <hr>
 
-        <p><strong>Kode Cluster :</strong> {{ $cluster->kode_cluster }}</p>
+        <p><strong>Kode Kluster :</strong> {{ $cluster->kode_cluster }}</p>
 
-        <p><strong>Nama Cluster :</strong> {{ $cluster->nama_cluster }}</p>
+        <p><strong>Nama Kluster :</strong> {{ $cluster->nama_cluster }}</p>
 
         <p><strong>Area :</strong> {{ $cluster->area->nama_area ?? '-' }}</p>
 

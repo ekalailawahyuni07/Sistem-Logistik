@@ -2,109 +2,175 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\MaterialMasukMail;
+use App\Models\DokumentasiTransaksi;
 use App\Models\Material;
 use App\Models\TransaksiMaterial;
-use App\Models\DokumentasiTransaksi;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Models\Cluster;
+
 
 class MaterialMasukController extends Controller
 {
     public function index()
     {
-        $masuk = TransaksiMaterial::with('material')
-            ->where('jenis_transaksi', 'masuk')
-            ->orderBy('id_transaksi', 'asc')
-            ->get();
+        $user = Auth::user();
 
-        if (request()->is('admin/*')) {
+        // ADMIN = lihat semua area
+        if ($user->id_role == 1) {
+
+            $masuk = TransaksiMaterial::with('material')
+                ->where('jenis_transaksi', 'masuk')
+                ->orderBy('id_transaksi', 'asc')
+                ->get();
+
             return view('admin.material-masuk', compact('masuk'));
         }
+
+        // PETUGAS = hanya area miliknya
+        $masuk = TransaksiMaterial::with('material')
+            ->where('jenis_transaksi', 'masuk')
+            ->where('id_area', $user->id_area)
+            ->orderBy('id_transaksi', 'asc')
+            ->get();
 
         return view('user.material-masuk', compact('masuk'));
     }
 
     public function create()
     {
-        $materials = Material::orderBy('kode_material', 'asc')->get();
+        $materials = Material::orderBy('nama_material')->get();
+
+        $projects = Material::select('project')
+            ->whereNotNull('project')
+            ->where('project', '!=', '')
+            ->distinct()
+            ->orderBy('project')
+            ->get();
 
         if (request()->is('admin/*')) {
-            return view('admin.tambah-material-masuk', compact('materials'));
+
+            return view(
+                'admin.tambah-material-masuk',
+                compact('materials', 'projects')
+            );
+
         }
 
-        return view('user.tambah-material-masuk', compact('materials'));
+        return view(
+            'user.tambah-material-masuk',
+            compact('materials', 'projects')
+        );
     }
 
     public function store(Request $request)
     {
-        foreach ($request->id_material as $index => $id_material) {
-            if ($id_material == null) {
+        $request->validate([
+            'id_material'   => ['required', 'array'],
+            'id_material.*' => ['nullable', 'exists:material,id_material'],
+            'jumlah'        => ['required', 'array'],
+            'jumlah.*'      => ['nullable', 'integer', 'min:1'],
+            'tanggal'       => ['required', 'date'],
+            'no_bukti'      => ['required', 'string', 'max:255'],
+            'project'       => ['required', 'string', 'max:255'],
+        ]);
+
+        foreach ($request->id_material as $index => $idMaterial) {
+            if (empty($idMaterial)) {
+                continue;
+            }
+
+            $jumlah = (int) ($request->jumlah[$index] ?? 0);
+
+            if ($jumlah <= 0) {
                 continue;
             }
 
             $transaksi = TransaksiMaterial::create([
                 'id_user'         => Auth::user()->id_user,
-                'id_material'     => $id_material,
+                'id_area'         => Auth::user()->id_area,
+                'id_material'     => $idMaterial,
                 'id_cluster'      => $request->id_cluster,
                 'jenis_transaksi' => 'masuk',
-                'jumlah'          => $request->jumlah[$index],
+                'jumlah'          => $jumlah,
                 'tgl_transaksi'   => $request->tanggal,
                 'no_bukti'        => $request->no_bukti,
                 'project'         => $request->project,
                 'nama_penerima'   => $request->nama_penerima,
-                'keterangan'      => $request->keterangan,
+                'keterangan' => $request->keterangan[$index] ?? null,
             ]);
 
-            if ($request->hasFile('foto_dokumentasi')) {
-                foreach ($request->file('foto_dokumentasi') as $foto) {
-                    $namaAsli = $foto->getClientOriginalName();
-                    $foto->storeAs('foto-dokumentasi', $namaAsli, 'public');
+            $material = Material::findOrFail($idMaterial);
 
-                    DokumentasiTransaksi::create([
-                        'id_transaksi'     => $transaksi->id_transaksi,
-                        'file_dokumentasi' => 'foto-dokumentasi/' . $namaAsli,
-                        'keterangan'       => $request->keterangan,
-                        'tgl_upload'       => now(),
-                    ]);
-                }
-            }
+            $material->stok = (int) $material->stok + $jumlah;
+            $material->save();
 
-            if ($request->hasFile('dokumen')) {
-                foreach ($request->file('dokumen') as $dokumen) {
-                    $namaAsli = $dokumen->getClientOriginalName();
-                    $dokumen->storeAs('dokumen-transaksi', $namaAsli, 'public');
+            $this->simpanDokumentasi($request, $transaksi, $index);
 
-                    DokumentasiTransaksi::create([
-                        'id_transaksi'     => $transaksi->id_transaksi,
-                        'file_dokumentasi' => 'dokumen-transaksi/' . $namaAsli,
-                        'keterangan'       => $request->keterangan,
-                        'tgl_upload'       => now(),
-                    ]);
-                }
-            }
+            $transaksi->load([
+                'material.cluster.area',
+                'cluster',
+                'user',
+            ]);
+
+            $this->kirimEmailKeAdmin(
+                new MaterialMasukMail($transaksi)
+            );
         }
 
-        if (request()->is('admin/*')) {
-            return redirect()
-                ->route('admin.material.masuk')
-                ->with('success', 'Material masuk berhasil disimpan.');
-        }
+        $route = request()->is('admin/*')
+            ? 'admin.material.masuk'
+            : 'material.masuk';
 
         return redirect()
-            ->route('material.masuk')
-            ->with('success', 'Material masuk berhasil disimpan.');
+            ->route($route)
+            ->with('success', 'Material masuk berhasil disimpan dan notifikasi email telah diproses.');
     }
 
     public function edit($id)
     {
-        $transaksi = TransaksiMaterial::with('dokumentasiTransaksi')->findOrFail($id);
-        $materials = Material::orderBy('kode_material', 'asc')->get();
+        $transaksi = TransaksiMaterial::with([
+            'material',
+            'cluster',
+            'dokumentasi'
+        ])->findOrFail($id);
+
+        $materials = Material::orderBy('kode_material')->get();
+
+        $clusters = Cluster::orderBy('nama_cluster')->get();
+
+        $projects = Material::select('project')
+            ->whereNotNull('project')
+            ->where('project', '!=', '')
+            ->distinct()
+            ->orderBy('project')
+            ->get();
 
         if (request()->is('admin/*')) {
-            return view('admin.edit-material-masuk', compact('transaksi', 'materials'));
+            return view(
+                'admin.edit-material-masuk',
+                compact(
+                    'transaksi',
+                    'materials',
+                    'clusters',
+                    'projects'
+                )
+            );
         }
 
-        return view('user.edit-material-masuk', compact('transaksi', 'materials'));
+        return view(
+            'user.edit-material-masuk',
+            compact(
+                'transaksi',
+                'materials',
+                'clusters',
+                'projects'
+            )
+        );
     }
 
     public function update(Request $request, $id)
@@ -112,49 +178,96 @@ class MaterialMasukController extends Controller
         $transaksi = TransaksiMaterial::findOrFail($id);
 
         $transaksi->update([
-            'id_material'    => $request->id_material,
-            'tgl_transaksi'  => $request->tanggal,
-            'no_bukti'       => $request->no_bukti,
-            'jumlah'         => $request->jumlah,
-            'keterangan'     => $request->keterangan,
+            'id_material'   => $request->id_material,
+            'tgl_transaksi' => $request->tanggal,
+            'no_bukti'      => $request->no_bukti,
+            'project'       => $request->project,
+            'jumlah'        => $request->jumlah,
+            'keterangan'    => $request->keterangan,
         ]);
 
+        $this->simpanDokumentasi($request, $transaksi, 0);
+
+        $route = request()->is('admin/*')
+            ? 'admin.material.masuk'
+            : 'material.masuk';
+
+        return redirect()
+            ->route($route)
+            ->with('success', 'Data material masuk berhasil diperbarui.');
+    }
+
+    private function simpanDokumentasi(
+        Request $request,
+        TransaksiMaterial $transaksi,
+        int $index
+    ): void {
+
         if ($request->hasFile('foto_dokumentasi')) {
+
             foreach ($request->file('foto_dokumentasi') as $foto) {
-                $namaAsli = $foto->getClientOriginalName();
-                $foto->storeAs('foto-dokumentasi', $namaAsli, 'public');
+
+                $namaFile = time().'_'.uniqid().'_'.$foto->getClientOriginalName();
+
+                $foto->storeAs(
+                    'foto-dokumentasi',
+                    $namaFile,
+                    'public'
+                );
 
                 DokumentasiTransaksi::create([
                     'id_transaksi'     => $transaksi->id_transaksi,
-                    'file_dokumentasi' => 'foto-dokumentasi/' . $namaAsli,
-                    'keterangan'       => $request->keterangan,
+                    'file_dokumentasi' => 'foto-dokumentasi/'.$namaFile,
+                    'keterangan'       => $request->keterangan[$index] ?? null,
                     'tgl_upload'       => now(),
                 ]);
+
             }
+
         }
 
         if ($request->hasFile('dokumen')) {
+
             foreach ($request->file('dokumen') as $dokumen) {
-                $namaAsli = $dokumen->getClientOriginalName();
-                $dokumen->storeAs('dokumen-transaksi', $namaAsli, 'public');
+
+                $namaFile = time().'_'.uniqid().'_'.$dokumen->getClientOriginalName();
+
+                $dokumen->storeAs(
+                    'dokumen-transaksi',
+                    $namaFile,
+                    'public'
+                );
 
                 DokumentasiTransaksi::create([
                     'id_transaksi'     => $transaksi->id_transaksi,
-                    'file_dokumentasi' => 'dokumen-transaksi/' . $namaAsli,
-                    'keterangan'       => $request->keterangan,
+                    'file_dokumentasi' => 'dokumen-transaksi/'.$namaFile,
+                    'keterangan'       => $request->keterangan[$index] ?? null,
                     'tgl_upload'       => now(),
+                ]);
+
+            }
+
+        }
+
+    }
+
+    private function kirimEmailKeAdmin(object $mail): void
+    {
+        $emailAdmin = User::where('id_role', 1)
+            ->where('status_validasi', 'disetujui')
+            ->whereNotNull('email')
+            ->pluck('email')
+            ->unique();
+
+        foreach ($emailAdmin as $email) {
+            try {
+                Mail::to($email)->send($mail);
+            } catch (\Throwable $error) {
+                Log::error('Email material masuk gagal dikirim.', [
+                    'email' => $email,
+                    'error' => $error->getMessage(),
                 ]);
             }
         }
-
-        if (request()->is('admin/*')) {
-            return redirect()
-                ->route('admin.material.masuk')
-                ->with('success', 'Data material masuk berhasil diperbarui.');
-        }
-
-        return redirect()
-            ->route('material.masuk')
-            ->with('success', 'Data material masuk berhasil diperbarui.');
     }
 }

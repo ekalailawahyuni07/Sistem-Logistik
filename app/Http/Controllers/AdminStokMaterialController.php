@@ -3,49 +3,136 @@
 namespace App\Http\Controllers;
 
 use App\Models\Material;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Area;
+use Illuminate\Http\Request;
 
 class AdminStokMaterialController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $materials = Material::withSum(
-            ['transaksiMaterial as total_masuk' => function ($q) {
-                $q->where('jenis_transaksi', 'masuk');
-            }],
-            'jumlah'
-        )
-        ->withSum(
-            ['transaksiMaterial as total_keluar' => function ($q) {
-                $q->where('jenis_transaksi', 'keluar');
-            }],
-            'jumlah'
-        )
-        ->orderBy('kode_material')
-        ->get();
+        $idArea = $request->id_area;
+        $allAreas = Area::orderBy('nama_area')->get();
+        if ($idArea) {
+            $areas = Area::where('id_area', $idArea)
+                        ->orderBy('nama_area')
+                        ->get();
+        } else {
+            $areas = Area::orderBy('nama_area')
+                        ->get();
+        }
 
-        $totalMaterial = $materials->count();
+        foreach ($areas as $area) {
 
-        $totalMasuk = $materials->sum('total_masuk');
+            $materials = Material::withSum([
+                'transaksiMaterial as total_masuk' => function ($q) use ($area) {
+                    $q->where('jenis_transaksi', 'masuk')
+                    ->where('id_area', $area->id_area);
+                }
+            ], 'jumlah')
 
-        $totalKeluar = $materials->sum('total_keluar');
+            ->withSum([
+                'transaksiMaterial as total_keluar' => function ($q) use ($area) {
+                    $q->where('jenis_transaksi', 'keluar')
+                    ->where('id_area', $area->id_area);
+                }
+            ], 'jumlah')
 
-        $totalStock = $materials->sum(function ($item) {
-            return ($item->total_masuk ?? 0) - ($item->total_keluar ?? 0);
-        });
+            ->orderBy('kode_material')
+            ->get()
 
-        $stokMenipis = $materials->filter(function ($item) {
-            $stock = ($item->total_masuk ?? 0) - ($item->total_keluar ?? 0);
+            ->filter(function ($item) {
 
-            return $stock > 0 && $stock <= 10;
-        })->count();
+                return ($item->total_masuk ?? 0) > 0
+                    || ($item->total_keluar ?? 0) > 0;
 
-        return view('admin.stok-material', compact(
-            'materials',
-            'totalMaterial',
-            'totalMasuk',
-            'totalKeluar',
-            'totalStock',
-            'stokMenipis'
-        ));
+            })
+
+            ->values();
+
+            $area->materials = $materials;
+
+            $area->total_stock = $materials->sum(function ($m) {
+
+                return ($m->total_masuk ?? 0) - ($m->total_keluar ?? 0);
+
+            });
+
+        }
+
+        return view(
+            'admin.stok-material',
+            compact(
+                'areas',
+                'allAreas'
+            )
+        );
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $idArea = $request->id_area;
+
+        if ($idArea) {
+
+            $areas = Area::where('id_area', $idArea)
+                        ->orderBy('nama_area')
+                        ->get();
+
+        } else {
+
+            $areas = Area::orderBy('nama_area')->get();
+
+        }
+
+        foreach ($areas as $area) {
+
+            $materials = Material::withSum([
+                'transaksiMaterial as total_masuk' => function ($q) use ($area) {
+
+                    $q->where('jenis_transaksi','masuk')
+                    ->where('id_area',$area->id_area);
+
+                }
+            ],'jumlah')
+
+            ->withSum([
+                'transaksiMaterial as total_keluar' => function ($q) use ($area) {
+
+                    $q->where('jenis_transaksi','keluar')
+                    ->where('id_area',$area->id_area);
+
+                }
+            ],'jumlah')
+
+            ->orderBy('kode_material')
+            ->get()
+
+            ->filter(function($m){
+
+                return ($m->total_masuk ?? 0) > 0
+                    || ($m->total_keluar ?? 0) > 0;
+
+            })
+
+            ->values();
+
+            $area->materials = $materials;
+
+            $area->total_stock = $materials->sum(function($m){
+
+                return ($m->total_masuk ?? 0)
+                    - ($m->total_keluar ?? 0);
+
+            });
+
+        }
+
+        $pdf = Pdf::loadView(
+            'admin.pdf.stok-material',
+            compact('areas')
+        );
+
+        return $pdf->download('Laporan_Stok_Material.pdf');
     }
 }

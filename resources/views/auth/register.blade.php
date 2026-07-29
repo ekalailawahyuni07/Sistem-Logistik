@@ -36,14 +36,14 @@
         <div class="bg-white rounded-3xl shadow-2xl p-8">
 
             {{-- Title --}}
-            <h2 class="text-3xl font-bold text-gray-900 mb-8 font-poppins text-center">Registered Here</h2>
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 font-poppins text-center">Daftar Akun</h2>
 
             <form method="POST" action="{{ route('register') }}" class="space-y-5">
                 @csrf
 
                 {{-- Nama User --}}
                 <div>
-                    <label for="nama_user" class="block text-sm font-medium text-gray-700 mb-1 font-montserrat">Nama User</label>
+                    <label for="nama_user" class="block text-sm font-medium text-gray-700 mb-1 font-montserrat">Nama Pengguna</label>
                     <input 
                         id="nama_user" 
                         name="nama_user" 
@@ -62,7 +62,7 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1 font-montserrat">
-                        Role
+                        Peran
                     </label>
 
                     <input
@@ -116,13 +116,13 @@
 
                 {{-- Password --}}
                 <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1 font-montserrat">Password</label>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1 font-montserrat">Kata Sandi</label>
                     <div class="relative">
                         <input 
                             id="password" 
                             name="password" 
                             type="password" 
-                            placeholder="Masukkan password"
+                            placeholder="Masukkan Kata Sandi"
                             class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1a237e] focus:border-transparent outline-none transition font-montserrat pr-10 @error('password') border-red-500 @enderror"
                             required 
                             autocomplete="new-password"
@@ -138,13 +138,13 @@
 
                 {{-- Confirm Password --}}
                 <div>
-                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1 font-montserrat">Confirm Password</label>
+                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1 font-montserrat">Konfirmasi kata sandi</label>
                     <div class="relative">
                         <input 
                             id="password_confirmation" 
                             name="password_confirmation" 
                             type="password" 
-                            placeholder="Konfirmasi password"
+                            placeholder="Konfirmasi kata sandi"
                             class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1a237e] focus:border-transparent outline-none transition font-montserrat pr-10"
                             required 
                             autocomplete="new-password"
@@ -160,7 +160,7 @@
                     type="submit" 
                     class="w-full bg-[#1a237e] hover:bg-[#0d1557] text-white font-semibold py-3 px-4 rounded-xl transition duration-200 ease-in-out transform hover:scale-[1.02] font-poppins mt-2"
                 >
-                    Register
+                    Daftar
                 </button>
 
                 {{-- Info verifikasi --}}
@@ -173,9 +173,9 @@
 
                 {{-- Login Link --}}
                 <p class="text-center text-sm text-gray-600 mt-4 font-montserrat">
-                    Already have an Account? 
+                    Sudah memiliki akun? 
                     <a href="{{ route('login') }}" class="text-[#1a237e] font-semibold hover:underline font-poppins">
-                        Login here
+                        Masuk
                     </a>
                 </p>
 

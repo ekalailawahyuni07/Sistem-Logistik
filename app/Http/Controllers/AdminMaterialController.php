@@ -16,15 +16,25 @@ class AdminMaterialController extends Controller
 
     public function create()
     {
-        return view('admin.tambah-material');
+        $projects = Material::select('project')
+            ->whereNotNull('project')
+            ->where('project', '!=', '')
+            ->distinct()
+            ->orderBy('project')
+            ->get();
+
+        return view(
+            'admin.tambah-material',
+            compact('projects')
+        );
     }
 
     public function store(Request $request)
     {
         Material::create([
-            'id_cluster'     => 1,
             'kode_material'  => $request->kode_material,
             'nama_material'  => $request->nama_material,
+            'project'        => $request->project,
             'jenis_material' => $request->jenis_material,
             'satuan'         => $request->satuan,
             'keterangan'     => $request->keterangan,
@@ -39,7 +49,20 @@ class AdminMaterialController extends Controller
     {
         $material = Material::findOrFail($id);
 
-        return view('admin.edit-material', compact('material'));
+        $projects = Material::select('project')
+            ->whereNotNull('project')
+            ->where('project', '!=', '')
+            ->distinct()
+            ->orderBy('project')
+            ->get();
+
+        return view(
+            'admin.edit-material',
+            compact(
+                'material',
+                'projects'
+            )
+        );
     }
 
     public function update(Request $request, $id)
@@ -49,6 +72,7 @@ class AdminMaterialController extends Controller
         $material->update([
             'kode_material'  => $request->kode_material,
             'nama_material'  => $request->nama_material,
+            'project'        => $request->project,
             'jenis_material' => $request->jenis_material,
             'satuan'         => $request->satuan,
             'keterangan'     => $request->keterangan,
@@ -58,6 +82,7 @@ class AdminMaterialController extends Controller
             ->route('admin.data.material')
             ->with('success', 'Data material berhasil diperbarui oleh admin.');
     }
+
     public function destroy($id)
     {
         $material = Material::findOrFail($id);

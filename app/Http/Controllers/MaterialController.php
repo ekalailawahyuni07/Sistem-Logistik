@@ -33,6 +33,7 @@ class MaterialController extends Controller
             'id_cluster'     => 1,
             'kode_material'  => $request->kode_material,
             'nama_material'  => $request->nama_material,
+            'project'        => $request->project,
             'jenis_material' => $request->jenis_material,
             'satuan'         => $request->satuan,
             'keterangan'     => $request->keterangan,
@@ -67,6 +68,7 @@ class MaterialController extends Controller
         $material->update([
             'kode_material'  => $request->kode_material,
             'nama_material'  => $request->nama_material,
+            'project'        => $request->project,
             'jenis_material' => $request->jenis_material,
             'satuan'         => $request->satuan,
             'keterangan'     => $request->keterangan,
@@ -85,24 +87,48 @@ class MaterialController extends Controller
 
     public function stok()
     {
+        $user = auth()->user();
+
         $materials = Material::withSum(
-            ['transaksiMaterial as total_masuk' => function ($q) {
+            ['transaksiMaterial as total_masuk' => function ($q) use ($user) {
                 $q->where('jenis_transaksi', 'masuk');
+                if ($user && $user->id_role != 1) {
+                    $q->where(function ($query) use ($user) {
+                        $query->where('id_area', $user->id_area)
+                            ->orWhereHas('cluster', function ($c) use ($user) {
+                                $c->where('id_area', $user->id_area);
+                            });
+                    });
+                }
             }],
             'jumlah'
         )
         ->withSum(
-            ['transaksiMaterial as total_keluar' => function ($q) {
+            ['transaksiMaterial as total_keluar' => function ($q) use ($user) {
                 $q->where('jenis_transaksi', 'keluar');
+                if ($user && $user->id_role != 1) {
+                    $q->where(function ($query) use ($user) {
+                        $query->where('id_area', $user->id_area)
+                            ->orWhereHas('cluster', function ($c) use ($user) {
+                                $c->where('id_area', $user->id_area);
+                            });
+                    });
+                }
             }],
             'jumlah'
         )
         ->orderBy('kode_material')
         ->get();
 
+        // Hanya sertakan material yang memiliki stok tersedia (> 0)
+        $materials = $materials->filter(function ($item) {
+            $stock = ($item->total_masuk ?? 0) - ($item->total_keluar ?? 0);
+            return $stock > 0;
+        });
+
         $totalMaterial = $materials->count();
-        $totalMasuk = $materials->sum('total_masuk');
-        $totalKeluar = $materials->sum('total_keluar');
+        $totalMasuk    = $materials->sum('total_masuk');
+        $totalKeluar   = $materials->sum('total_keluar');
 
         $totalStock = $materials->sum(function ($item) {
             return ($item->total_masuk ?? 0) - ($item->total_keluar ?? 0);

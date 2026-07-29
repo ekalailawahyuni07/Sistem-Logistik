@@ -9,7 +9,11 @@ class ClusterController extends Controller
 {
     public function index()
     {
-        $clusters = Cluster::orderBy('id_cluster', 'asc')->get();
+        $user = auth()->user();
+
+        $clusters = Cluster::where('id_area', $user->id_area)
+            ->orderBy('id_cluster', 'asc')
+            ->get();
 
         return view('user.cluster', compact('clusters'));
     }
@@ -27,14 +31,14 @@ class ClusterController extends Controller
         ]);
 
         Cluster::create([
-            'id_area'       => 1,
+            'id_area'       => auth()->user()->id_area,
             'kode_cluster'  => $request->kode_cluster,
             'nama_cluster'  => $request->nama_cluster,
         ]);
 
         return redirect()
             ->route('cluster')
-            ->with('success', 'Cluster berhasil ditambahkan.');
+            ->with('success', 'Kluster berhasil ditambahkan.');
     }
 
     public function edit($id)
