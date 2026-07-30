@@ -20,6 +20,12 @@ class MaterialKeluarController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $projects = Material::select('project')
+            ->whereNotNull('project')
+            ->where('project', '!=', '')
+            ->distinct()
+            ->orderBy('project', 'asc')
+            ->get();
 
         if ($user->id_role == 1 || request()->is('admin/*')) {
             $keluar = TransaksiMaterial::with([
@@ -31,7 +37,7 @@ class MaterialKeluarController extends Controller
                 ->orderBy('id_transaksi', 'asc')
                 ->get();
 
-            return view('admin.material-keluar', compact('keluar'));
+            return view('admin.material-keluar', compact('keluar', 'projects'));
         }
 
         $keluar = TransaksiMaterial::with([
@@ -49,7 +55,7 @@ class MaterialKeluarController extends Controller
             ->orderBy('id_transaksi', 'asc')
             ->get();
 
-        return view('user.material-keluar', compact('keluar'));
+        return view('user.material-keluar', compact('keluar', 'projects'));
     }
 
     public function create()
@@ -462,5 +468,15 @@ class MaterialKeluarController extends Controller
                 );
             }
         }
+    }
+
+    public function destroyDokumen($id)
+    {
+        $dokumen = DokumentasiTransaksi::findOrFail($id);
+        if ($dokumen->file_dokumentasi && Storage::disk('public')->exists($dokumen->file_dokumentasi)) {
+            Storage::disk('public')->delete($dokumen->file_dokumentasi);
+        }
+        $dokumen->delete();
+        return redirect()->back()->with('success', 'Dokumen berhasil dihapus!');
     }
 }

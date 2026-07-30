@@ -44,9 +44,16 @@ class AdminSuratJalanController extends Controller
 
         }
 
+        $projects = \App\Models\Material::select('project')
+            ->whereNotNull('project')
+            ->where('project', '!=', '')
+            ->distinct()
+            ->orderBy('project', 'asc')
+            ->get();
+
         return view(
             'admin.surat-jalan',
-            compact('areas','allAreas')
+            compact('areas','allAreas', 'projects')
         );
     }
     public function show($id)

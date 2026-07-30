@@ -19,6 +19,12 @@ class MaterialMasukController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $projects = Material::select('project')
+            ->whereNotNull('project')
+            ->where('project', '!=', '')
+            ->distinct()
+            ->orderBy('project', 'asc')
+            ->get();
 
         // ADMIN = lihat semua area
         if ($user->id_role == 1) {
@@ -28,7 +34,7 @@ class MaterialMasukController extends Controller
                 ->orderBy('id_transaksi', 'asc')
                 ->get();
 
-            return view('admin.material-masuk', compact('masuk'));
+            return view('admin.material-masuk', compact('masuk', 'projects'));
         }
 
         // PETUGAS = hanya area miliknya
@@ -38,7 +44,7 @@ class MaterialMasukController extends Controller
             ->orderBy('id_transaksi', 'asc')
             ->get();
 
-        return view('user.material-masuk', compact('masuk'));
+        return view('user.material-masuk', compact('masuk', 'projects'));
     }
 
     public function create()
@@ -269,5 +275,15 @@ class MaterialMasukController extends Controller
                 ]);
             }
         }
+    }
+
+    public function destroyDokumen($id)
+    {
+        $dokumen = DokumentasiTransaksi::findOrFail($id);
+        if ($dokumen->file_dokumentasi && Storage::disk('public')->exists($dokumen->file_dokumentasi)) {
+            Storage::disk('public')->delete($dokumen->file_dokumentasi);
+        }
+        $dokumen->delete();
+        return redirect()->back()->with('success', 'Dokumen berhasil dihapus!');
     }
 }

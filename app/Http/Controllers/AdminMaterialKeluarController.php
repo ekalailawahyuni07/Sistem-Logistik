@@ -25,7 +25,14 @@ class AdminMaterialKeluarController extends Controller
             }
         ])->orderBy('nama_area')->get();
 
-        return view('admin.material-keluar', compact('areas'));
+        $projects = Material::select('project')
+            ->whereNotNull('project')
+            ->where('project', '!=', '')
+            ->distinct()
+            ->orderBy('project', 'asc')
+            ->get();
+
+        return view('admin.material-keluar', compact('areas', 'projects'));
     }
 
     public function create()

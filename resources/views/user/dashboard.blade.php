@@ -14,7 +14,12 @@
 
     <a href="{{ route('profile.edit') }}" class="profile-link">
         <div class="profile">
-            <div class="avatar">👤</div>
+            @if(Auth::user()->foto_profile)
+                <img src="{{ asset('storage/' . Auth::user()->foto_profile) }}" class="profile-img">
+            @else
+                <div class="avatar">👤</div>
+            @endif
+
             <h4>{{ Auth::user()->nama_user }}</h4>
             <p>{{ Auth::user()->email }}</p>
         </div>
@@ -139,7 +144,7 @@
                 class="btn-logout-modal"
                 onclick="submitLogout()"
             >
-                Ya, Logout
+                Ya, Keluar
             </button>
 
         </div>

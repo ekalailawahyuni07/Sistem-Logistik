@@ -23,11 +23,18 @@
         <img src="{{ asset('images/logo-tkm.png') }}" alt="Logo PT">
     </div>
 
-    <div class="profile">
-        <div class="avatar">👤</div>
-        <h4>{{ Auth::user()->nama_user }}</h4>
-        <p>{{ Auth::user()->email }}</p>
-    </div>
+    <a href="{{ route('profile.edit') }}" style="text-decoration:none; color:inherit;">
+        <div class="profile">
+            @if(Auth::user()->foto_profile)
+                <img src="{{ asset('storage/' . Auth::user()->foto_profile) }}" class="profile-img">
+            @else
+                <div class="avatar">👤</div>
+            @endif
+
+            <h4>{{ Auth::user()->nama_user }}</h4>
+            <p>{{ Auth::user()->email }}</p>
+        </div>
+    </a>
 
     <div class="menu">
         <a href="{{ route('dashboard') }}">Dashboard</a>
@@ -154,7 +161,7 @@
                 Batal
             </button>
             <button type="button" class="btn-logout-modal" onclick="submitLogout()">
-                Ya, Logout
+                Ya, Keluar
             </button>
         </div>
     </div>

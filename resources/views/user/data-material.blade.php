@@ -12,11 +12,18 @@
         <img src="{{ asset('images/logo-tkm.png') }}" alt="Logo PT">
     </div>
 
-    <div class="profile">
-        <div class="avatar">👤</div>
-        <h4>{{ Auth::user()->nama_user }}</h4>
-        <p>{{ Auth::user()->email }}</p>
-    </div>
+    <a href="{{ route('profile.edit') }}" style="text-decoration:none; color:inherit;">
+        <div class="profile">
+            @if(Auth::user()->foto_profile)
+                <img src="{{ asset('storage/' . Auth::user()->foto_profile) }}" class="profile-img">
+            @else
+                <div class="avatar">👤</div>
+            @endif
+
+            <h4>{{ Auth::user()->nama_user }}</h4>
+            <p>{{ Auth::user()->email }}</p>
+        </div>
+    </a>
 
     <div class="menu">
         <a href="{{ route('dashboard') }}">Dashboard</a>
@@ -58,7 +65,7 @@
 
         <h2>Daftar Material</h2>
 
-        <div class="material-toolbar">
+        <div class="material-toolbar" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
 
             <input
                 type="text"
@@ -68,7 +75,17 @@
                 onkeyup="cariMaterial()"
             >
 
-            {{-- ROUTE INI NANTI PAKAI ROUTE LAMA KAMU --}}
+            <select
+                id="filterProject"
+                class="filter-area"
+                onchange="cariMaterial()"
+                style="color: #000000 !important;">
+                <option value="">Semua Project</option>
+                @foreach($projects as $p)
+                    <option value="{{ strtolower($p->project) }}">{{ $p->project }}</option>
+                @endforeach
+            </select>
+
             <a href="{{ route('data.material.create') }}" class="btn-add">
                 + Tambah Material
             </a>
@@ -150,7 +167,7 @@
                 class="btn-logout-modal"
                 onclick="submitLogout()"
             >
-                Ya, Logout
+                Ya, Keluar
             </button>
 
         </div>
@@ -193,17 +210,21 @@ window.onclick=function(event){
 
 <script>
 function cariMaterial() {
-    const keyword = document
-        .getElementById('searchMaterial')
-        .value
-        .toLowerCase();
-
+    const keyword = document.getElementById('searchMaterial').value.toLowerCase();
+    const selectedProject = document.getElementById('filterProject').value.toLowerCase();
     const rows = document.querySelectorAll('#tabelMaterial tbody tr');
 
     rows.forEach(function(row) {
-        const text = row.innerText.toLowerCase();
+        if (row.querySelector("td[colspan]")) return;
 
-        if (text.includes(keyword)) {
+        const text = row.innerText.toLowerCase();
+        const projectTd = row.children[3];
+        const projectText = projectTd ? projectTd.innerText.toLowerCase().trim() : "";
+
+        const matchesKeyword = text.includes(keyword);
+        const matchesProject = !selectedProject || projectText.includes(selectedProject);
+
+        if (matchesKeyword && matchesProject) {
             row.style.display = '';
         } else {
             row.style.display = 'none';

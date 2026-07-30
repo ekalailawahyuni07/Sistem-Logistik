@@ -65,7 +65,7 @@
     <div class="card">
         <div class="card-header-material">
             <h2>Daftar Material</h2>
-            <div class="header-action">
+            <div class="header-action" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                 <input
                     type="text"
                     id="searchMaterial"
@@ -73,6 +73,16 @@
                     onkeyup="cariMaterial()"
                     class="search-material"
                 >
+                <select
+                    id="filterProject"
+                    class="filter-area"
+                    onchange="cariMaterial()"
+                    style="color: #000000 !important;">
+                    <option value="">Semua Project</option>
+                    @foreach($projects as $p)
+                        <option value="{{ strtolower($p->project) }}">{{ $p->project }}</option>
+                    @endforeach
+                </select>
                 <a href="{{ route('admin.data.material.create') }}"
                 class="btn-tambah">
                     + Tambah Material
@@ -250,30 +260,26 @@ function submitHapus() {
 // =========================
 
 function cariMaterial() {
-
-    const keyword = document
-        .getElementById("searchMaterial")
-        .value
-        .toLowerCase();
-
+    const keyword = document.getElementById("searchMaterial").value.toLowerCase();
+    const selectedProject = document.getElementById("filterProject").value.toLowerCase();
     const rows = document.querySelectorAll(".material-table tbody tr");
 
-    rows.forEach(function(row){
+    rows.forEach(function(row) {
+        if (row.querySelector("td[colspan]")) return;
 
         const text = row.innerText.toLowerCase();
+        const projectTd = row.children[3];
+        const projectText = projectTd ? projectTd.innerText.toLowerCase().trim() : "";
 
-        if(text.includes(keyword)){
+        const matchesKeyword = text.includes(keyword);
+        const matchesProject = !selectedProject || projectText.includes(selectedProject);
 
+        if (matchesKeyword && matchesProject) {
             row.style.display = "";
-
-        }else{
-
+        } else {
             row.style.display = "none";
-
         }
-
     });
-
 }
 
 // =========================

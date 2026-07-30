@@ -27,9 +27,16 @@ class AdminMaterialMasukController extends Controller
         ->orderBy('nama_area')
         ->get();
 
+        $projects = Material::select('project')
+            ->whereNotNull('project')
+            ->where('project', '!=', '')
+            ->distinct()
+            ->orderBy('project', 'asc')
+            ->get();
+
         return view(
             'admin.material-masuk',
-            compact('areas')
+            compact('areas', 'projects')
         );
     }
 

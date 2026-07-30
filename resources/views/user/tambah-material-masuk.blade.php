@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <title>Tambah Material Masuk</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <style>
+        .form-header h1,
+        .form-header h2,
+        .form-header p,
+        .form-group label,
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            color: #000000 !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -255,7 +266,7 @@
                 class="btn-logout-modal"
                 onclick="submitLogout()"
             >
-                Ya, Logout
+                Ya, Keluar
             </button>
 
         </div>

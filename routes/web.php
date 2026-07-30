@@ -132,6 +132,7 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile/foto', [ProfileController::class, 'deletePhoto'])->name('profile.photo.destroy');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/data-material', [MaterialController::class, 'index'])->name('data.material');
@@ -145,12 +146,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/material-masuk/simpan', [MaterialMasukController::class, 'store'])->name('material.masuk.store');
     Route::get('/material-masuk/{id}/edit', [MaterialMasukController::class, 'edit'])->name('material.masuk.edit');
     Route::put('/material-masuk/{id}', [MaterialMasukController::class, 'update'])->name('material.masuk.update');
+    Route::delete('/material-masuk/dokumen/{id}', [MaterialMasukController::class, 'destroyDokumen'])->name('material.masuk.dokumen.destroy');
 
     Route::get('/material-keluar', [MaterialKeluarController::class, 'index'])->name('material.keluar');
     Route::get('/material-keluar/tambah', [MaterialKeluarController::class, 'create'])->name('material.keluar.create');
     Route::post('/material-keluar/simpan', [MaterialKeluarController::class, 'store'])->name('material.keluar.store');
     Route::get('/material-keluar/{id}/edit', [MaterialKeluarController::class, 'edit'])->name('material.keluar.edit');
     Route::put('/material-keluar/{id}', [MaterialKeluarController::class, 'update'])->name('material.keluar.update');
+    Route::delete('/material-keluar/dokumen/{id}', [MaterialKeluarController::class, 'destroyDokumen'])->name('material.keluar.dokumen.destroy');
 
     Route::get('/cluster', [ClusterController::class, 'index'])->name('cluster');
     Route::get('/cluster/tambah', [ClusterController::class, 'create'])->name('cluster.create');

@@ -60,11 +60,19 @@ class AdminStokMaterialController extends Controller
 
         }
 
+        $projects = Material::select('project')
+            ->whereNotNull('project')
+            ->where('project', '!=', '')
+            ->distinct()
+            ->orderBy('project', 'asc')
+            ->get();
+
         return view(
             'admin.stok-material',
             compact(
                 'areas',
-                'allAreas'
+                'allAreas',
+                'projects'
             )
         );
     }

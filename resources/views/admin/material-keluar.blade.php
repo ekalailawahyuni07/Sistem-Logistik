@@ -72,8 +72,7 @@
                     type="text"
                     id="searchMaterial"
                     class="search-material"
-                    placeholder="🔍 Cari Material..."
-                    onkeyup="cariMaterial()">
+                    placeholder="🔍 Cari Material...">
                 <select
                     id="filterArea"
                     class="filter-area"
@@ -234,12 +233,10 @@ window.onclick=function(event){
 }
 
 function filterMaterial() {
-
     const filter = document.getElementById("filterArea").value.toLowerCase();
     const cards = document.querySelectorAll(".area-card");
 
     cards.forEach(function(card){
-
         const area = card.getAttribute("data-area");
 
         if(filter === "" || area === filter){
@@ -247,9 +244,7 @@ function filterMaterial() {
         }else{
             card.style.display = "none";
         }
-
     });
-
 }
 </script>
 

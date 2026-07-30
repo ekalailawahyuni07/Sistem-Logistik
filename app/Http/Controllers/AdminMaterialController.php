@@ -10,8 +10,14 @@ class AdminMaterialController extends Controller
     public function index()
     {
         $materials = Material::orderBy('id_material', 'asc')->get();
+        $projects = Material::select('project')
+            ->whereNotNull('project')
+            ->where('project', '!=', '')
+            ->distinct()
+            ->orderBy('project', 'asc')
+            ->get();
 
-        return view('admin.data-material', compact('materials'));
+        return view('admin.data-material', compact('materials', 'projects'));
     }
 
     public function create()

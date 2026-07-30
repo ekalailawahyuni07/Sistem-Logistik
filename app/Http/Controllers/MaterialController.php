@@ -10,12 +10,18 @@ class MaterialController extends Controller
     public function index()
     {
         $materials = Material::orderBy('id_material', 'asc')->get();
+        $projects = Material::select('project')
+            ->whereNotNull('project')
+            ->where('project', '!=', '')
+            ->distinct()
+            ->orderBy('project', 'asc')
+            ->get();
 
         if (request()->is('admin/*')) {
-            return view('admin.data-material', compact('materials'));
+            return view('admin.data-material', compact('materials', 'projects'));
         }
 
-        return view('user.data-material', compact('materials'));
+        return view('user.data-material', compact('materials', 'projects'));
     }
 
     public function create()
@@ -139,6 +145,13 @@ class MaterialController extends Controller
             return $stock > 0 && $stock <= 10;
         })->count();
 
+        $projects = Material::select('project')
+            ->whereNotNull('project')
+            ->where('project', '!=', '')
+            ->distinct()
+            ->orderBy('project', 'asc')
+            ->get();
+
         if (request()->is('admin/*')) {
             return view('admin.stok-material', compact(
                 'materials',
@@ -146,7 +159,8 @@ class MaterialController extends Controller
                 'totalMasuk',
                 'totalKeluar',
                 'totalStock',
-                'stokMenipis'
+                'stokMenipis',
+                'projects'
             ));
         }
 
@@ -156,7 +170,8 @@ class MaterialController extends Controller
             'totalMasuk',
             'totalKeluar',
             'totalStock',
-            'stokMenipis'
+            'stokMenipis',
+            'projects'
         ));
     }
 }

@@ -4,8 +4,53 @@
     <meta charset="UTF-8">
     <title>Detail Kluster</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <style>
+        .card h1,
+        .card h2,
+        .card p,
+        .card strong {
+            color: #000000 !important;
+        }
+    </style>
 </head>
 <body>
+
+<div class="sidebar">
+    <div class="logo">
+        <img src="{{ asset('images/logo-tkm.png') }}" alt="Logo PT">
+    </div>
+
+    <div class="profile">
+        @if(Auth::user()->foto_profile)
+            <img src="{{ asset('storage/' . Auth::user()->foto_profile) }}" class="profile-img">
+        @else
+            <div class="avatar">👤</div>
+        @endif
+
+        <h4>{{ Auth::user()->nama_user }}</h4>
+        <p>{{ Auth::user()->email }}</p>
+    </div>
+
+    <div class="menu">
+        <a href="{{ route('dashboard') }}">Dashboard</a>
+        <a href="{{ route('data.material') }}">Master Data Material</a>
+        <a href="{{ route('material.masuk') }}">Material Masuk</a>
+        <a href="{{ route('material.keluar') }}">Material Keluar</a>
+        <a href="{{ route('stok.material') }}">Stok Material</a>
+        <a href="{{ route('cluster') }}" class="active">Daftar Kluster</a>
+        <a href="{{ route('dokumen') }}">Daftar Dokumen</a>
+        <a href="{{ route('surat.jalan') }}">Surat Jalan</a>
+    </div>
+
+    <div class="logout">
+        <form method="POST" action="{{ route('logout') }}" id="logoutForm">
+            @csrf
+            <button type="button" class="logout-btn" onclick="bukaModalLogout()">
+                Keluar
+            </button>
+        </form>
+    </div>
+</div>
 
 <div class="content">
 
@@ -58,7 +103,7 @@
 
                 <tr>
                     <td colspan="8" class="text-center">
-                        Belum ada material keluar pada cluster ini.
+                        Belum ada material keluar pada kluster ini.
                     </td>
                 </tr>
 
@@ -76,6 +121,42 @@
     </div>
 
 </div>
+
+<div id="modalLogout" class="modal-hapus">
+    <div class="modal-box">
+        <div class="modal-icon logout-icon">🚪</div>
+        <h2>Keluar</h2>
+        <p>Apakah Anda yakin ingin keluar dari sistem?</p>
+        <div class="modal-warning-text">
+            Anda harus masuk kembali untuk mengakses sistem.
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn-batal-modal" onclick="tutupModalLogout()">Batal</button>
+            <button type="button" class="btn-logout-modal" onclick="submitLogout()">Ya, Keluar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function bukaModalLogout() {
+    document.getElementById("modalLogout").style.display="flex";
+}
+
+function tutupModalLogout() {
+    document.getElementById("modalLogout").style.display="none";
+}
+
+function submitLogout(){
+    document.getElementById("logoutForm").submit();
+}
+
+window.onclick=function(event){
+    let modalLogout = document.getElementById("modalLogout");
+    if(event.target == modalLogout){
+        tutupModalLogout();
+    }
+}
+</script>
 
 </body>
 </html>

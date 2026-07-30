@@ -68,7 +68,7 @@
 
             <h2>Daftar Dokumen Berdasarkan Area</h2>
 
-            <div class="stok-toolbar">
+            <div class="stok-toolbar" style="gap:10px;">
 
                 <input
                     type="text"
@@ -76,12 +76,23 @@
                     placeholder="🔍 Cari Dokumen..."
                     onkeyup="cariDokumen()">
 
-                <form method="GET"
-                      action="{{ route('admin.dokumen') }}">
+                <select
+                    id="filterJenis"
+                    class="filter-area"
+                    onchange="cariDokumen()"
+                    style="color:#000 !important;">
+                    <option value="">Semua Jenis</option>
+                    <option value="masuk">Material Masuk</option>
+                    <option value="keluar">Material Keluar</option>
+                </select>
+
+                <form method="GET" action="{{ route('admin.dokumen') }}" style="margin:0;">
 
                     <select
                         name="id_area"
-                        onchange="this.form.submit()">
+                        class="filter-area"
+                        onchange="this.form.submit()"
+                        style="color:#000 !important;">
 
                         <option value="">Semua Area</option>
 
@@ -131,7 +142,7 @@
                         <tr>
 
                             <th>No</th>
-                            <th>Jenis</th>
+                            <th>Jenis Transaksi</th>
                             <th>Nama File</th>
                             <th>Tgl Upload</th>
                             <th>Tgl Transaksi</th>
@@ -152,7 +163,18 @@
 
                             <td>{{ $loop->iteration }}</td>
 
-                            <td>Dokumen</td>
+                            <td>
+                                @php
+                                    $jenis = $item->transaksiMaterial->jenis_transaksi ?? null;
+                                @endphp
+                                @if($jenis == 'masuk')
+                                    <span class="badge-masuk">▲ Material Masuk</span>
+                                @elseif($jenis == 'keluar')
+                                    <span class="badge-keluar">▼ Material Keluar</span>
+                                @else
+                                    <span style="color:#888;">-</span>
+                                @endif
+                            </td>
 
                             <td>
                                 {{ basename($item->file_dokumentasi) }}
@@ -275,23 +297,24 @@
 </div>
 
 <script>
-function cariDokumen(){
+function cariDokumen() {
+    let keyword = document.getElementById("searchDokumen").value.toLowerCase();
+    let filterJenis = document.getElementById("filterJenis") ? document.getElementById("filterJenis").value : "";
 
-    let keyword = document
-        .getElementById("searchDokumen")
-        .value
-        .toLowerCase();
+    document.querySelectorAll(".tabelDokumen tbody tr").forEach(function(row) {
+        if (row.querySelector("td[colspan]")) return;
 
-    document.querySelectorAll(".tabelDokumen tbody tr")
-    .forEach(function(row){
+        let text = row.innerText.toLowerCase();
+        let jenisTd = row.children[1];
+        let jenisText = jenisTd ? jenisTd.innerText.toLowerCase() : "";
 
-        row.style.display =
-            row.innerText.toLowerCase().includes(keyword)
-            ? ""
-            : "none";
+        let matchesKeyword = text.includes(keyword);
+        let matchesJenis = !filterJenis ||
+            (filterJenis === 'masuk' && jenisText.includes('masuk')) ||
+            (filterJenis === 'keluar' && jenisText.includes('keluar'));
 
+        row.style.display = (matchesKeyword && matchesJenis) ? "" : "none";
     });
-
 }
 
 function bukaModalLogout() {

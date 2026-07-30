@@ -82,7 +82,7 @@
         </form>
 
         <h2>
-            👤 Halo, {{ Auth::user()->nama_user }}
+            👤 Halo, {{ Auth::user()->nama_user }} (Admin)
         </h2>
 
     </div>

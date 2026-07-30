@@ -1,9 +1,8 @@
 <section class="profile-form-section">
 
     <div class="profile-form-header">
-        <div class="profile-icon">👤</div>
         <div>
-            <h2>Informasi Profile</h2>
+            <h2 style="color: #0b2857;">Informasi Profile</h2>
             <p>Ubah foto profile, nama, email, nomor telepon, dan alamat akun.</p>
         </div>
     </div>
@@ -12,27 +11,38 @@
         @csrf
         @method('patch')
 
-        <div class="form-upload-area">
-            <div class="upload-wrapper">
+        <div class="form-upload-area" style="margin-bottom: 25px;">
+            <div class="upload-wrapper" style="display: flex; align-items: center; gap: 20px; padding: 0; grid-template-columns: none;">
                 @if($user->foto_profile)
-                    <img
-                        id="previewFoto"
-                        src="{{ asset('storage/' . $user->foto_profile) }}"
-                        class="upload-preview"
-                        alt="Foto Profile">
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                        <img
+                            id="previewFoto"
+                            src="{{ asset('storage/' . $user->foto_profile) }}"
+                            class="upload-preview"
+                            alt="Foto Profile"
+                            style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #0b2857;">
+
+                        <button type="button" onclick="if(confirm('Apakah Anda yakin ingin menghapus foto profile?')) { document.getElementById('formHapusFoto').submit(); }" style="background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                            🗑️ Hapus Foto
+                        </button>
+                    </div>
                 @else
                     <img
                         id="previewFoto"
                         src=""
                         class="upload-preview"
                         alt="Foto Profile"
-                        style="display:none;">
+                        style="display:none; width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #0b2857;">
                 @endif
 
-                <label for="foto_profile" class="upload-box">
-                    <span>☁️</span>
-                    <strong>Pilih atau upload foto profile</strong>
-                    <small>PNG, JPG, JPEG maks. 2MB</small>
+                <label for="foto_profile" class="upload-box" style="flex: 1; margin: 0; padding: 18px 22px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <span style="font-size: 32px;">☁️</span>
+                        <div>
+                            <strong style="color: #0b2857; font-size: 15px; display: block; margin: 0;">Pilih atau upload foto profile</strong>
+                            <small style="color: #64748b; font-size: 13px;">PNG, JPG, JPEG maks. 2MB</small>
+                        </div>
+                    </div>
                 </label>
 
                 <input
@@ -45,7 +55,7 @@
             </div>
 
             @error('foto_profile')
-                <small class="error-text">{{ $message }}</small>
+                <small class="error-text" style="color: #dc2626; display: block; margin-top: 5px;">{{ $message }}</small>
             @enderror
         </div>
 
@@ -119,7 +129,17 @@
         @if (session('status') === 'profile-updated')
             <p class="success-text">Profile berhasil disimpan.</p>
         @endif
+        @if (session('status') === 'profile-photo-deleted')
+            <p class="success-text" style="color: #16a34a; font-weight: 600; margin-top: 10px;">Foto profile berhasil dihapus.</p>
+        @endif
     </form>
+
+    @if($user->foto_profile)
+        <form id="formHapusFoto" method="POST" action="{{ route('profile.photo.destroy') }}" style="display:none;">
+            @csrf
+            @method('DELETE')
+        </form>
+    @endif
 
     <script>
         function previewProfile(event) {

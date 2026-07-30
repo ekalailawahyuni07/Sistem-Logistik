@@ -13,6 +13,9 @@ class AdminAreaController extends Controller
         $areas = Area::with([
             'clusters' => function ($query) {
                 $query->orderBy('id_cluster', 'asc');
+            },
+            'users' => function ($query) {
+                $query->where('id_role', 2)->where('status_validasi', 'disetujui');
             }
         ])
         ->orderBy('id_area', 'asc')
@@ -73,7 +76,7 @@ class AdminAreaController extends Controller
     {
         $area = Area::findOrFail($id);
 
-        if ($area->users()->exists()) {
+        if ($area->users()->where('id_role', 2)->exists()) {
             return redirect()
                 ->route('admin.kelola.area')
                 ->with('error', 'Area tidak dapat dihapus karena masih digunakan oleh user.');

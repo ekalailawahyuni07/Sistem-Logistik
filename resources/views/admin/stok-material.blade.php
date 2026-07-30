@@ -76,10 +76,23 @@
                     placeholder="🔍 Cari Material..."
                     onkeyup="cariStok()">
 
-                <form method="GET" action="{{ route('admin.stok.material') }}">
+                <select
+                    id="filterProject"
+                    class="filter-area"
+                    onchange="cariStok()"
+                    style="color:#000 !important;">
+                    <option value="">Semua Project</option>
+                    @foreach($projects as $p)
+                        <option value="{{ strtolower($p->project) }}">{{ $p->project }}</option>
+                    @endforeach
+                </select>
+
+                <form method="GET" action="{{ route('admin.stok.material') }}" style="margin:0;">
                     <select
                         name="id_area"
-                        onchange="this.form.submit()">
+                        class="filter-area"
+                        onchange="this.form.submit()"
+                        style="color:#000 !important;">
                         <option value="">Semua Area</option>
                         @foreach($allAreas as $area)
                             <option
@@ -132,14 +145,15 @@
                     <thead>
 
                         <tr>
-                            <th>No</th>
-                            <th>Kode Material</th>
-                            <th>Nama Material</th>
-                            <th>Satuan</th>
-                            <th>Material IN</th>
-                            <th>Material OUT</th>
-                            <th>Stock</th>
-                            <th>Status</th>
+                            <th style="width:40px;">No</th>
+                            <th style="min-width:120px;">Kode Material</th>
+                            <th style="min-width:150px;">Nama Material</th>
+                            <th style="min-width:90px;">Project</th>
+                            <th style="min-width:70px;">Satuan</th>
+                            <th style="min-width:90px;">Material IN</th>
+                            <th style="min-width:90px;">Material OUT</th>
+                            <th style="min-width:60px;">Stock</th>
+                            <th style="min-width:80px;">Status</th>
                         </tr>
 
                     </thead>
@@ -161,6 +175,12 @@
                             <td>{{ $material->kode_material }}</td>
 
                             <td>{{ $material->nama_material }}</td>
+
+                            <td>
+                                <span style="background:#e8f0fe;color:#1a56db;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:600;white-space:nowrap;">
+                                    {{ $material->project ?? '-' }}
+                                </span>
+                            </td>
 
                             <td>{{ $material->satuan }}</td>
 
@@ -194,7 +214,7 @@
 
                         <tr>
 
-                            <td colspan="8" class="text-center">
+                            <td colspan="9" class="text-center">
 
                                 Belum ada stok material
 
@@ -262,11 +282,21 @@
 
 <script>
 function cariStok() {
-    let input = document.getElementById("searchStok").value.toLowerCase();
-    let rows = document.querySelectorAll("#tabelStok tbody tr");
+    let keyword = document.getElementById("searchStok").value.toLowerCase();
+    let filterProject = document.getElementById("filterProject") ? document.getElementById("filterProject").value.toLowerCase() : "";
+    let rows = document.querySelectorAll(".material-table tbody tr");
 
     rows.forEach(row => {
-        row.style.display = row.innerText.toLowerCase().includes(input) ? "" : "none";
+        if (row.querySelector("td[colspan]")) return;
+
+        let text = row.innerText.toLowerCase();
+        let projectTd = row.children[3];
+        let projectText = projectTd ? projectTd.innerText.toLowerCase().trim() : "";
+
+        let matchesKeyword = text.includes(keyword);
+        let matchesProject = !filterProject || projectText.includes(filterProject);
+
+        row.style.display = (matchesKeyword && matchesProject) ? "" : "none";
     });
 }
 

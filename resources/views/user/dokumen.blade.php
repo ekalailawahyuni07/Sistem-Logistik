@@ -12,11 +12,18 @@
         <img src="{{ asset('images/logo-tkm.png') }}" alt="Logo PT">
     </div>
 
-    <div class="profile">
-        <div class="avatar">👤</div>
-        <h4>{{ Auth::user()->nama_user }}</h4>
-        <p>{{ Auth::user()->email }}</p>
-    </div>
+    <a href="{{ route('profile.edit') }}" style="text-decoration:none; color:inherit;">
+        <div class="profile">
+            @if(Auth::user()->foto_profile)
+                <img src="{{ asset('storage/' . Auth::user()->foto_profile) }}" class="profile-img">
+            @else
+                <div class="avatar">👤</div>
+            @endif
+
+            <h4>{{ Auth::user()->nama_user }}</h4>
+            <p>{{ Auth::user()->email }}</p>
+        </div>
+    </a>
 
     <div class="menu">
         <a href="{{ route('dashboard') }}">Dashboard</a>
@@ -56,7 +63,7 @@
         <div class="material-card-header">
             <h2>Daftar Dokumen & Dokumentasi Area {{ Auth::user()->area->nama_area ?? '' }}</h2>
 
-            <div class="material-toolbar">
+            <div class="material-toolbar" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
                 <input
                     type="text"
                     id="searchDokumen"
@@ -64,6 +71,15 @@
                     placeholder="🔍 Cari dokumen..."
                     onkeyup="cariDokumen()"
                 >
+                <select
+                    id="filterJenis"
+                    class="filter-area"
+                    onchange="cariDokumen()"
+                    style="color:#000 !important;">
+                    <option value="">Semua Jenis</option>
+                    <option value="masuk">Material Masuk</option>
+                    <option value="keluar">Material Keluar</option>
+                </select>
             </div>
         </div>
 
@@ -71,7 +87,7 @@
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>Jenis</th>
+                    <th>Jenis Transaksi</th>
                     <th>Nama File</th>
                     <th>Tanggal Upload</th>
                     <th>Tanggal Transaksi</th>
@@ -86,7 +102,18 @@
                 @forelse($dokumen as $item)
                     <tr>
                         <td>{{ $loop->iteration }}</td>
-                        <td>Dokumen</td>
+                        <td>
+                            @php
+                                $jenis = $item->transaksiMaterial->jenis_transaksi ?? null;
+                            @endphp
+                            @if($jenis == 'masuk')
+                                <span class="badge-masuk">▲ Material Masuk</span>
+                            @elseif($jenis == 'keluar')
+                                <span class="badge-keluar">▼ Material Keluar</span>
+                            @else
+                                <span style="color:#888;">-</span>
+                            @endif
+                        </td>
                         <td>{{ basename($item->file_dokumentasi) }}</td>
                         <td>{{ $item->tgl_upload ?? '-' }}</td>
                         <td>{{ $item->transaksiMaterial->tgl_transaksi ?? '-' }}</td>
@@ -154,7 +181,7 @@
                 class="btn-logout-modal"
                 onclick="submitLogout()"
             >
-                Ya, Logout
+                Ya, Keluar
             </button>
 
         </div>
@@ -165,11 +192,23 @@
 
 <script>
 function cariDokumen() {
-    let input = document.getElementById("searchDokumen").value.toLowerCase();
+    let keyword = document.getElementById("searchDokumen").value.toLowerCase();
+    let filterJenis = document.getElementById("filterJenis") ? document.getElementById("filterJenis").value : "";
     let rows = document.querySelectorAll("#tabelDokumen tbody tr");
 
-    rows.forEach(row => {
-        row.style.display = row.innerText.toLowerCase().includes(input) ? "" : "none";
+    rows.forEach(function(row) {
+        if (row.querySelector("td[colspan]")) return;
+
+        let text = row.innerText.toLowerCase();
+        let jenisTd = row.children[1];
+        let jenisText = jenisTd ? jenisTd.innerText.toLowerCase() : "";
+
+        let matchesKeyword = text.includes(keyword);
+        let matchesJenis = !filterJenis ||
+            (filterJenis === 'masuk' && jenisText.includes('masuk')) ||
+            (filterJenis === 'keluar' && jenisText.includes('keluar'));
+
+        row.style.display = (matchesKeyword && matchesJenis) ? "" : "none";
     });
 }
 

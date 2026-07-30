@@ -93,6 +93,26 @@ class ProfileController extends Controller
             ->with('status', 'profile-updated');
     }
 
+    /**
+     * Hapus foto profile user.
+     */
+    public function deletePhoto(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        if (
+            $user->foto_profile &&
+            Storage::disk('public')->exists($user->foto_profile)
+        ) {
+            Storage::disk('public')->delete($user->foto_profile);
+        }
+
+        $user->foto_profile = null;
+        $user->save();
+
+        return Redirect::route('profile.edit')
+            ->with('status', 'profile-photo-deleted');
+    }
 
     /**
      * Hapus akun user.

@@ -26,7 +26,14 @@ class SuratJalanController extends Controller
             ->get()
             ->unique('no_bukti');
 
-        return view('user.surat-jalan', compact('suratJalan'));
+        $projects = \App\Models\Material::select('project')
+            ->whereNotNull('project')
+            ->where('project', '!=', '')
+            ->distinct()
+            ->orderBy('project', 'asc')
+            ->get();
+
+        return view('user.surat-jalan', compact('suratJalan', 'projects'));
     }
 
     public function show($id)

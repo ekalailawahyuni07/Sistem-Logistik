@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <title>Edit Material Masuk</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <style>
+        .form-header h1,
+        .form-header h2,
+        .form-header p,
+        .form-group label,
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            color: #000000 !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -35,50 +46,34 @@
     </div>
 
     <div class="logout">
-        <form method="POST"
-            action="{{ route('material.masuk.update', $transaksi->id_transaksi) }}"
-            enctype="multipart/form-data">
-              id="logoutForm">
+        <form method="POST" action="{{ route('logout') }}" id="logoutForm">
             @csrf
-
-            <button
-                type="button"
-                class="logout-btn"
-                onclick="bukaModalLogout()">
+            <button type="button" class="logout-btn" onclick="bukaModalLogout()">
                 Keluar
             </button>
         </form>
     </div>
 </div>
 
-
 <div class="content">
-
     <div class="form-card">
-
         <div class="form-header">
             <div class="form-icon">✏️</div>
-
             <div>
                 <h2>Edit Material Masuk</h2>
                 <p>Perbarui data material masuk pada form di bawah ini.</p>
             </div>
         </div>
 
-
-        <form method="POST"
-              action="{{ route('material.masuk.update', $transaksi->id_transaksi) }}">
-
+        <form method="POST" action="{{ route('material.masuk.update', $transaksi->id_transaksi) }}" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
             <div class="form-grid">
-
                 <div class="form-group">
                     <label>
                         Tanggal <span style="color:red;">*</span>
                     </label>
-
                     <input
                         type="date"
                         name="tanggal"
@@ -86,12 +81,10 @@
                         required>
                 </div>
 
-
                 <div class="form-group">
                     <label>
                         No Surat Jalan <span style="color:red;">*</span>
                     </label>
-
                     <input
                         type="text"
                         name="no_bukti"
@@ -99,68 +92,47 @@
                         required>
                 </div>
 
-
                 <div class="form-group">
                     <label>
                         Project <span style="color:red;">*</span>
                     </label>
-
                     <select name="project" required>
-
-                        <option value="">
-                            -- Pilih Project --
-                        </option>
-
+                        <option value="">-- Pilih Project --</option>
                         @foreach($projects as $project)
                             <option
                                 value="{{ $project->project }}"
                                 {{ $transaksi->project == $project->project ? 'selected' : '' }}>
-
                                 {{ $project->project }}
-
                             </option>
                         @endforeach
-
                     </select>
                 </div>
-
 
                 <div class="form-group">
                     <label>
                         Material <span style="color:red;">*</span>
                     </label>
-
                     <select
                         name="id_material"
                         class="select-material"
                         required
                         onchange="isiSatuan(this)">
-
-                        <option value="">
-                            -- Pilih Material --
-                        </option>
-
+                        <option value="">-- Pilih Material --</option>
                         @foreach($materials as $material)
                             <option
                                 value="{{ $material->id_material }}"
                                 data-satuan="{{ $material->satuan }}"
                                 {{ $transaksi->id_material == $material->id_material ? 'selected' : '' }}>
-
-                                [{{ $material->kode_material }}]
-                                {{ $material->nama_material }}
-
+                                [{{ $material->kode_material }}] {{ $material->nama_material }}
                             </option>
                         @endforeach
-
                     </select>
                 </div>
-
 
                 <div class="form-group">
                     <label>
                         Jumlah <span style="color:red;">*</span>
                     </label>
-
                     <input
                         type="number"
                         name="jumlah"
@@ -169,21 +141,17 @@
                         required>
                 </div>
 
-
                 <div class="form-group">
                     <label>Satuan</label>
-
                     <input
                         type="text"
                         class="satuan-field"
-                        value="{{ $transaksi->material->satuan ?? '' }}"
+                        value="{{ $transaksi->material->satuan ?? '-' }}"
                         readonly>
                 </div>
 
-
-                <div class="form-group">
+                <div class="form-group full">
                     <label>Keterangan</label>
-
                     <input
                         type="text"
                         name="keterangan"
@@ -191,205 +159,167 @@
                         placeholder="Opsional">
                 </div>
 
-                <div class="form-group">
-                    <label>Foto Dokumentasi</label>
+                <div class="form-group full">
+                    <label>Dokumen / Foto Saat Ini</label>
+                    <table class="material-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama File</th>
+                                <th>Keterangan</th>
+                                <th>Lihat</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($transaksi->dokumentasiTransaksi as $dok)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ basename($dok->file_dokumentasi) }}</td>
+                                    <td>{{ $dok->keterangan ?: '-' }}</td>
+                                    <td>
+                                        <a href="{{ asset('storage/'.$dok->file_dokumentasi) }}"
+                                        target="_blank"
+                                        class="btn-lihat">
+                                            Lihat
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <form
+                                            id="hapusDokumen{{ $dok->id_dokumentasi }}"
+                                            action="{{ route('material.masuk.dokumen.destroy', $dok->id_dokumentasi) }}"
+                                            method="POST">
+                                            @csrf
+                                            @method('DELETE')
 
-                    <label class="upload-box">
-                        <span class="upload-icon">📷</span>
-
-                        <span class="upload-info">
-                            <strong>Pilih Foto Dokumentasi</strong>
-                            <small>JPG, JPEG, PNG</small>
-                        </span>
-
-                        <span class="upload-button">Pilih File</span>
-
-                        <input
-                            type="file"
-                            name="foto_dokumentasi[]"
-                            accept="image/*"
-                            multiple
-                            onchange="tampilkanNamaFile(this)"
-                        >
-                    </label>
-
-                    <div class="file-name">Belum ada file baru dipilih</div>
-
-                    @if($transaksi->dokumentasi && $transaksi->dokumentasi->count())
-                        @foreach($transaksi->dokumentasi as $dok)
-                            @if(str_starts_with($dok->file_dokumentasi, 'foto-dokumentasi/'))
-                                <div class="existing-file">
-                                    <span>📷 Foto tersimpan</span>
-
-                                    <a
-                                        href="{{ asset('storage/' . $dok->file_dokumentasi) }}"
-                                        target="_blank">
-                                        Lihat Foto
-                                    </a>
-                                </div>
-                            @endif
-                        @endforeach
-                    @endif
+                                            <button
+                                                type="button"
+                                                class="btn-delete"
+                                                onclick="bukaModalHapusDokumen(this)">
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" style="text-align:center">
+                                        Tidak ada dokumen.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
 
+                <div class="form-group">
+                    <label>Tambah Foto Dokumentasi Baru</label>
+                    <input
+                        type="file"
+                        name="foto_dokumentasi[]"
+                        multiple
+                        accept=".jpg,.jpeg,.png">
+                    <small style="color:#6b7280;">(JPEG / PNG)</small>
+                </div>
 
                 <div class="form-group">
-                    <label>Dokumen</label>
-
-                    <label class="upload-box">
-                        <span class="upload-icon">📄</span>
-
-                        <span class="upload-info">
-                            <strong>Pilih Dokumen</strong>
-                            <small>PDF atau dokumen pendukung</small>
-                        </span>
-
-                        <span class="upload-button">Pilih File</span>
-
-                        <input
-                            type="file"
-                            name="dokumen[]"
-                            multiple
-                            onchange="tampilkanNamaFile(this)"
-                        >
-                    </label>
-
-                    <div class="file-name">Belum ada file baru dipilih</div>
-
-                    @if($transaksi->dokumentasi && $transaksi->dokumentasi->count())
-                        @foreach($transaksi->dokumentasi as $dok)
-                            @if(str_starts_with($dok->file_dokumentasi, 'dokumen-transaksi/'))
-                                <div class="existing-file">
-                                    <span>📄 Dokumen tersimpan</span>
-
-                                    <a
-                                        href="{{ asset('storage/' . $dok->file_dokumentasi) }}"
-                                        target="_blank">
-                                        Lihat Dokumen
-                                    </a>
-                                </div>
-                            @endif
-                        @endforeach
-                    @endif
+                    <label>Tambah Dokumen Surat Jalan</label>
+                    <input
+                        type="file"
+                        name="dokumen[]"
+                        multiple
+                        accept=".pdf,.doc,.docx">
+                    <small style="color:#6b7280;">(PDF / DOC / DOCX)</small>
                 </div>
             </div>
-
 
             <div class="form-actions">
-
-                <a href="{{ route('material.masuk') }}"
-                   class="btn-kembali">
-                    ← Kembali
-                </a>
-
+                <a href="{{ route('material.masuk') }}" class="btn-kembali">← Kembali</a>
                 <div>
-                    <button
-                        type="reset"
-                        class="btn-reset">
-                        Reset
-                    </button>
-
-                    <button
-                        type="submit"
-                        class="btn-update">
-                        ✓ Update
-                    </button>
+                    <button type="reset" class="btn-reset">Reset</button>
+                    <button type="submit" class="btn-update">✓ Update</button>
                 </div>
-
             </div>
-
         </form>
-
     </div>
-
 </div>
 
+<div id="modalHapus" class="modal-hapus">
+    <div class="modal-box">
+        <div class="modal-icon">⚠️</div>
+        <h2>Konfirmasi Hapus</h2>
+        <p>Apakah Anda yakin ingin menghapus dokumen ini?</p>
+        <div class="modal-actions">
+            <button type="button" class="btn-batal-modal" onclick="tutupModalHapus()">Batal</button>
+            <button type="button" class="btn-konfirmasi-modal" onclick="submitHapusDokumen()">Ya, Hapus</button>
+        </div>
+    </div>
+</div>
 
 <div id="modalLogout" class="modal-hapus">
-
     <div class="modal-box">
-
-        <div class="modal-icon logout-icon">
-            🚪
-        </div>
-
+        <div class="modal-icon logout-icon">🚪</div>
         <h2>Keluar</h2>
-
-        <p>
-            Apakah Anda yakin ingin keluar dari sistem?
-        </p>
-
+        <p>Apakah Anda yakin ingin keluar dari sistem?</p>
         <div class="modal-warning-text">
             Anda harus masuk kembali untuk mengakses sistem.
         </div>
-
         <div class="modal-actions">
-
-            <button
-                type="button"
-                class="btn-batal-modal"
-                onclick="tutupModalLogout()">
-                Batal
-            </button>
-
-            <button
-                type="button"
-                class="btn-logout-modal"
-                onclick="submitLogout()">
-                Ya, Logout
-            </button>
-
+            <button type="button" class="btn-batal-modal" onclick="tutupModalLogout()">Batal</button>
+            <button type="button" class="btn-logout-modal" onclick="submitLogout()">Ya, Keluar</button>
         </div>
-
     </div>
-
 </div>
 
-
 <script>
-function isiSatuan(select) {
-    const selected = select.options[select.selectedIndex];
-    const satuan = selected.getAttribute('data-satuan') || '';
+let formHapusTarget = null;
 
-    document.querySelector('.satuan-field').value = satuan;
+function bukaModalHapusDokumen(btn) {
+    formHapusTarget = btn.closest('form');
+    document.getElementById('modalHapus').style.display = 'flex';
+}
+
+function tutupModalHapus() {
+    document.getElementById('modalHapus').style.display = 'none';
+    formHapusTarget = null;
+}
+
+function submitHapusDokumen() {
+    if (formHapusTarget) {
+        formHapusTarget.submit();
+    }
+}
+
+function isiSatuan(select) {
+    let selectedOption = select.options[select.selectedIndex];
+    let satuan = selectedOption.getAttribute('data-satuan');
+    let formGroup = select.closest('.form-grid');
+    let satuanInput = formGroup.querySelector('.satuan-field');
+    if (satuanInput) {
+        satuanInput.value = satuan ? satuan : '-';
+    }
 }
 
 function bukaModalLogout() {
-    document.getElementById('modalLogout').style.display = 'flex';
+    document.getElementById("modalLogout").style.display="flex";
 }
 
 function tutupModalLogout() {
-    document.getElementById('modalLogout').style.display = 'none';
+    document.getElementById("modalLogout").style.display="none";
 }
 
-function submitLogout() {
-    document.getElementById('logoutForm').submit();
+function submitLogout(){
+    document.getElementById("logoutForm").submit();
 }
 
-window.onclick = function(event) {
-    const modal = document.getElementById('modalLogout');
-
-    if (event.target === modal) {
+window.onclick=function(event){
+    let modalLogout = document.getElementById("modalLogout");
+    let modalHapus = document.getElementById("modalHapus");
+    if(event.target == modalLogout){
         tutupModalLogout();
     }
-};
-</script>
-
-<script>
-function tampilkanNamaFile(input) {
-
-    const container = input.closest('.form-group');
-    const fileName = container.querySelector('.file-name');
-
-    if (!input.files.length) {
-        fileName.textContent = 'Belum ada file baru dipilih';
-        return;
-    }
-
-    if (input.files.length === 1) {
-        fileName.textContent = '✓ ' + input.files[0].name;
-    } else {
-        fileName.textContent = '✓ ' + input.files.length + ' file dipilih';
+    if(event.target == modalHapus){
+        tutupModalHapus();
     }
 }
 </script>

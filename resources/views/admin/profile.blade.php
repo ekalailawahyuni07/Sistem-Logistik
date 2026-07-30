@@ -58,7 +58,7 @@
 <div class="content">
     <div class="topbar">
         <h1>👤 Profile</h1>
-        <h2>Halo, {{ Auth::user()->nama_user }}!</h2>
+        <h2>Halo, {{ Auth::user()->nama_user }}! (Admin)</h2>
     </div>
 
     <div class="profile-page">
@@ -101,6 +101,10 @@
             <hr style="margin:30px 0;">
 
             @include('profile.partials.update-password-form')
+
+            <hr style="margin:30px 0;">
+
+            @include('profile.partials.delete-user-form')
         </div>
 
     </div>
@@ -139,7 +143,7 @@
                 class="btn-logout-modal"
                 onclick="submitLogout()"
             >
-                Ya, Logout
+                Ya, Keluar
             </button>
 
         </div>

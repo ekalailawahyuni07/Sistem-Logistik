@@ -107,6 +107,7 @@
 
                     <select
                         name="id_area"
+                        class="filter-area"
                         onchange="this.form.submit()">
 
                         <option value="">
@@ -267,24 +268,11 @@
 
 <script>
 
-function cariSurat(){
-
-    let keyword = document
-        .getElementById("searchSurat")
-        .value
-        .toLowerCase();
-
-    document
-        .querySelectorAll(".tabelSurat tbody tr")
-        .forEach(function(row){
-
-            row.style.display =
-                row.innerText.toLowerCase().includes(keyword)
-                ? ""
-                : "none";
-
-        });
-
+function cariSurat() {
+    let keyword = document.getElementById("searchSurat").value.toLowerCase();
+    document.querySelectorAll(".tabelSurat tbody tr").forEach(function(row) {
+        row.style.display = row.innerText.toLowerCase().includes(keyword) ? "" : "none";
+    });
 }
 
 
