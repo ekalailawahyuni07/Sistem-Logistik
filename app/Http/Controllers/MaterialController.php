@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Material;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class MaterialController extends Controller
 {
@@ -173,5 +174,56 @@ class MaterialController extends Controller
             'stokMenipis',
             'projects'
         ));
+    }
+
+    public function exportStokPdf(Request $request)
+    {
+        $user = auth()->user();
+        $selectedProject = $request->project;
+
+        $materialsQuery = Material::withSum(
+            ['transaksiMaterial as total_masuk' => function ($q) use ($user) {
+                $q->where('jenis_transaksi', 'masuk');
+                if ($user && $user->id_role != 1) {
+                    $q->where(function ($query) use ($user) {
+                        $query->where('id_area', $user->id_area)
+                            ->orWhereHas('cluster', function ($c) use ($user) {
+                                $c->where('id_area', $user->id_area);
+                            });
+                    });
+                }
+            }],
+            'jumlah'
+        )
+        ->withSum(
+            ['transaksiMaterial as total_keluar' => function ($q) use ($user) {
+                $q->where('jenis_transaksi', 'keluar');
+                if ($user && $user->id_role != 1) {
+                    $q->where(function ($query) use ($user) {
+                        $query->where('id_area', $user->id_area)
+                            ->orWhereHas('cluster', function ($c) use ($user) {
+                                $c->where('id_area', $user->id_area);
+                            });
+                    });
+                }
+            }],
+            'jumlah'
+        );
+
+        if ($selectedProject) {
+            $materialsQuery->where('project', $selectedProject);
+        }
+
+        $materials = $materialsQuery->orderBy('kode_material')->get();
+
+        $materials = $materials->filter(function ($item) {
+            $stock = ($item->total_masuk ?? 0) - ($item->total_keluar ?? 0);
+            return $stock > 0;
+        });
+
+        $namaArea = $user->area->nama_area ?? 'Area';
+
+        $pdf = Pdf::loadView('user.pdf-stok-material', compact('user', 'materials', 'selectedProject', 'namaArea'));
+        return $pdf->download("Laporan_Stok_Material_{$namaArea}.pdf");
     }
 }

@@ -4,6 +4,103 @@
     <meta charset="UTF-8">
     <title>Data Material Admin</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <style>
+        /* ===== DATA MATERIAL: FIT ONE SCREEN ===== */
+        html {
+            height: 100%;
+        }
+
+        body {
+            height: 100vh;
+            overflow: hidden; /* Cegah scroll pada body utama */
+        }
+
+        /* Sidebar tetap bisa scroll jika menu panjang */
+        .sidebar {
+            overflow-y: auto;
+            height: 100vh;
+        }
+
+        .data-material-page {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            padding: 18px 28px;
+        }
+
+        .data-material-page .topbar {
+            flex-shrink: 0;
+            margin-bottom: 12px;
+        }
+
+        .data-material-page .card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 14px 16px;
+        }
+
+        .card-header-material {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        /* Container scrollable khusus untuk tabel */
+        .material-table-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        .material-table-container::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .material-table-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .material-table-container::-webkit-scrollbar-thumb {
+            background: #a0aec0;
+            border-radius: 4px;
+        }
+
+        .material-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .material-table thead th {
+            position: sticky;
+            top: 0;
+            background: #1a3a6e;
+            color: #ffffff;
+            z-index: 2;
+            padding: 10px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .material-table td {
+            padding: 8px 10px;
+            text-align: center;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .material-table tbody tr:hover {
+            background: #f8fafc;
+        }
+    </style>
 </head>
 <body>
 
@@ -56,7 +153,7 @@
     </div>
 </div>
 
-<div class="content">
+<div class="content data-material-page">
     <div class="topbar">
         <h1> Master Data Material</h1>
         <h2>👤 Halo, {{ Auth::user()->nama_user }} (Admin)</h2>
@@ -90,18 +187,19 @@
             </div>
         </div>
 
-        <table class="material-table">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Kode Material</th>
-                    <th>Nama Material</th>
-                    <th>Project</th>
-                    <th>Jenis</th>
-                    <th>Satuan</th>
-                    <th>Keterangan</th>
-                    <th>Aksi</th>
-                </tr>
+        <div class="material-table-container">
+            <table class="material-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Kode Material</th>
+                        <th>Nama Material</th>
+                        <th>Project</th>
+                        <th>Jenis</th>
+                        <th>Satuan</th>
+                        <th>Keterangan</th>
+                        <th>Aksi</th>
+                    </tr>
                 </thead>
 
                 <tbody>
@@ -151,7 +249,8 @@
                 </tr>
                 @endforelse
                 </tbody>
-        </table>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -188,7 +287,7 @@
                 class="btn-logout-modal"
                 onclick="submitLogout()"
             >
-                Ya, Logout
+                Ya, Keluar
             </button>
 
         </div>

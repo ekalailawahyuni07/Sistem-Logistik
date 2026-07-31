@@ -4,6 +4,47 @@
     <meta charset="UTF-8">
     <title>Daftar Kluster</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <style>
+        html { height: 100%; }
+        body { height: 100vh; overflow: hidden; }
+        .sidebar { overflow-y: auto; height: 100vh; }
+        .user-page-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            padding: 18px 28px;
+        }
+        .user-page-container .topbar { flex-shrink: 0; margin-bottom: 12px; }
+        .user-page-container .card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 14px 16px;
+        }
+        .material-card-header { flex-shrink: 0; margin-bottom: 12px; }
+        .table-container-scroll {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+        .table-container-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .table-container-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .table-container-scroll::-webkit-scrollbar-thumb { background: #a0aec0; border-radius: 4px; }
+        .material-table thead th {
+            position: sticky;
+            top: 0;
+            background: #1a3a6e;
+            color: #ffffff;
+            z-index: 2;
+            padding: 10px;
+            text-align: center;
+            white-space: nowrap;
+        }
+    </style>
 </head>
 <body>
 
@@ -32,7 +73,7 @@
         <a href="{{ route('material.keluar') }}">Material Keluar</a>
         <a href="{{ route('stok.material') }}">Stok Material</a>
         <a href="{{ route('cluster') }}" class="active">Daftar Kluster</a>
-        <a href="{{ route('dokumen') }}">Daftar Dokumen</a>
+        <a href="{{ route('dokumen') }}">Dokumen</a>
         <a href="{{ route('surat.jalan') }}">Surat Jalan</a>
     </div>
 
@@ -53,7 +94,7 @@
     </div>
 </div>
 
-<div class="content">
+<div class="content user-page-container">
     <div class="topbar">
         <h1>Daftar Kluster</h1>
         <h2>👤 Halo, {{ Auth::user()->nama_user }}! (Petugas)</h2>
@@ -78,40 +119,42 @@
             </div>
         </div>
 
-        <table class="material-table">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Kode Kluster</th>
-                    <th>Nama Kluster</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
+        <div class="table-container-scroll">
+            <table class="material-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Kode Kluster</th>
+                        <th>Nama Kluster</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
 
-            <tbody>
-                @forelse($clusters as $cluster)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $cluster->kode_cluster }}</td>
-                        <td>{{ $cluster->nama_cluster }}</td>
-                        <td>
-                            <a href="{{ route('cluster.edit', $cluster->id_cluster) }}" class="btn-edit">
-                                Edit
-                            </a>
-                            <a href="{{ route('cluster.show', $cluster->id_cluster) }}" class="btn-view">
-                                View
-                            </a>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="4" style="text-align:center;">
-                            Belum ada data kluster
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                <tbody>
+                    @forelse($clusters as $cluster)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $cluster->kode_cluster }}</td>
+                            <td>{{ $cluster->nama_cluster }}</td>
+                            <td>
+                                <a href="{{ route('cluster.edit', $cluster->id_cluster) }}" class="btn-edit">
+                                    Edit
+                                </a>
+                                <a href="{{ route('cluster.show', $cluster->id_cluster) }}" class="btn-view">
+                                    View
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" style="text-align:center;">
+                                Belum ada data kluster
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

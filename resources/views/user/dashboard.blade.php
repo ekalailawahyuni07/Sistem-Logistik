@@ -4,6 +4,20 @@
     <meta charset="UTF-8">
     <title>Dashboard User</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <style>
+        html { height: 100%; }
+        body { height: 100vh; overflow: hidden; }
+        .sidebar { overflow-y: auto; height: 100vh; }
+        .user-dashboard-page {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 18px 28px;
+        }
+        .user-dashboard-page .topbar { flex-shrink: 0; margin-bottom: 12px; }
+        .user-dashboard-page .card { margin-bottom: 14px; }
+    </style>
 </head>
 <body>
 
@@ -32,7 +46,7 @@
         <a href="{{ route('material.keluar') }}">Material Keluar</a>
         <a href="{{ route('stok.material') }}">Stok Material</a>
         <a href="{{ route('cluster') }}">Daftar Kluster</a>
-        <a href="{{ route('dokumen') }}">Daftar Dokumen</a>
+        <a href="{{ route('dokumen') }}">Dokumen</a>
         <a href="{{ route('surat.jalan') }}">Surat Jalan</a>
     </div>
 
@@ -55,7 +69,7 @@
 
 </div>
 
-<div class="content">
+<div class="content user-dashboard-page">
     <div class="topbar">
         <h1>Dashboard</h1>
 

@@ -4,6 +4,225 @@
     <meta charset="UTF-8">
     <title>Stok Material Admin</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <style>
+        /* ===== STOK MATERIAL: FIT ONE SCREEN ===== */
+        html {
+            height: 100%;
+        }
+
+        body {
+            height: 100vh;
+            overflow: hidden; /* cegah scroll body */
+        }
+
+        /* Sidebar tetap bisa scroll menu-nya */
+        .sidebar {
+            overflow-y: auto;
+            height: 100vh;
+        }
+
+        .stok-material-page {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            padding: 18px 28px;
+        }
+
+        .stok-material-page .topbar {
+            flex-shrink: 0;
+            margin-bottom: 12px;
+        }
+
+        .stok-material-page .card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 14px 16px;
+        }
+
+        .stok-material-page .card-header {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .stok-material-page .card-header h2 {
+            margin: 0;
+            font-size: 17px;
+            white-space: nowrap;
+        }
+
+        .stok-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .stok-toolbar input {
+            height: 38px;
+            padding: 0 12px;
+            border: 1.5px solid #cdd5e0;
+            border-radius: 8px;
+            font-size: 13px;
+            width: 180px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .filter-area {
+            height: 38px !important;
+            padding: 0 34px 0 12px !important;
+            border: 1.5px solid #cdd5e0 !important;
+            border-radius: 8px !important;
+            font-size: 13px !important;
+            background-color: #ffffff !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%231a237e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 10px center !important;
+            background-size: 14px 14px !important;
+            color: #2d3748 !important;
+            outline: none !important;
+            cursor: pointer !important;
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            box-sizing: border-box !important;
+        }
+
+        .btn-pdf {
+            height: 38px;
+            padding: 0 16px;
+            background: #e53e3e;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-sizing: border-box;
+            text-decoration: none;
+        }
+
+        /* Scrollable area list */
+        .stok-areas-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-right: 4px;
+        }
+
+        .stok-areas-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .stok-areas-list::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .stok-areas-list::-webkit-scrollbar-thumb {
+            background: #a0aec0;
+            border-radius: 4px;
+        }
+
+        .area-section {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .area-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #061b40;
+            color: #fff;
+            padding: 8px 16px;
+        }
+
+        .area-header h3 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .area-header span {
+            font-size: 12px;
+            background: rgba(255,255,255,0.15);
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        .stok-table-wrapper, .table-responsive {
+            max-height: 250px !important;
+            overflow-y: auto !important;
+            overflow-x: auto !important;
+        }
+
+        .stok-table-wrapper::-webkit-scrollbar, .table-responsive::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        .stok-table-wrapper::-webkit-scrollbar-track, .table-responsive::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .stok-table-wrapper::-webkit-scrollbar-thumb, .table-responsive::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 3px;
+        }
+
+        .material-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+        }
+
+        .material-table thead tr {
+            background: #1a3a6e;
+            color: #fff;
+        }
+
+        .material-table th {
+            position: sticky !important;
+            top: 0 !important;
+            background: #1a3a6e !important;
+            color: #fff !important;
+            z-index: 10 !important;
+            padding: 7px 10px;
+            text-align: center;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .material-table td {
+            padding: 6px 10px;
+            text-align: center;
+            border-bottom: 1px solid #edf2f7;
+            color: #2d3748;
+        }
+
+        .material-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .material-table tbody tr:hover {
+            background: #f7faff;
+        }
+
+        .text-center { text-align: center; }
+    </style>
 </head>
 <body>
 
@@ -112,10 +331,10 @@
                     </button>
                     <div id="exportMenu" class="export-menu">
                         <a href="{{ route('admin.stok.material.pdf') }}">
-                            📄 Export Semua Area
+                            Export Semua Area
                         </a>
                         <a id="exportAreaBtn" href="#">
-                            📍 Export Area Dipilih
+                            Export Area Dipilih
                         </a>
                     </div>
                 </div>
@@ -124,13 +343,15 @@
 
         </div>
 
+        <div class="stok-areas-list">
+
         @foreach($areas as $area)
 
         <div class="area-section">
 
             <div class="area-header">
 
-                <h3>📍 {{ $area->nama_area }}</h3>
+                <h3>{{ $area->nama_area }}</h3>
 
                 <span>
                     Total Stock : {{ $area->total_stock }}
@@ -234,6 +455,8 @@
 
         @endforeach
 
+        </div><!-- /.stok-areas-list -->
+
     </div>
 </div>
 
@@ -270,7 +493,7 @@
                 class="btn-logout-modal"
                 onclick="submitLogout()"
             >
-                Ya, Logout
+                Ya, Keluar
             </button>
 
         </div>

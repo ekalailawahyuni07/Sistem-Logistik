@@ -208,7 +208,7 @@
                 class="btn-logout-modal"
                 onclick="submitLogout()">
 
-                Ya, Logout
+                Ya, Keluar
 
             </button>
 

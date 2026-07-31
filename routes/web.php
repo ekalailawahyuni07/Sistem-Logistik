@@ -166,6 +166,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/surat-jalan/{id}/view', [SuratJalanController::class, 'show'])->name('surat.jalan.show');
 
     Route::get('/stok-material', [MaterialController::class, 'stok'])->name('stok.material');
+    Route::get('/stok-material/pdf', [MaterialController::class, 'exportStokPdf'])->name('stok.material.pdf');
     Route::get('/dokumen', [DokumenController::class, 'index'])->name('dokumen');
 });
 

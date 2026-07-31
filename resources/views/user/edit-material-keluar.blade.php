@@ -41,7 +41,7 @@
         <a href="{{ route('material.keluar') }}" class="active">Material Keluar</a>
         <a href="{{ route('stok.material') }}">Stok Material</a>
         <a href="{{ route('cluster') }}">Daftar Kluster</a>
-        <a href="{{ route('dokumen') }}">Daftar Dokumen</a>
+        <a href="{{ route('dokumen') }}">Dokumen</a>
         <a href="{{ route('surat.jalan') }}">Surat Jalan</a>
     </div>
 

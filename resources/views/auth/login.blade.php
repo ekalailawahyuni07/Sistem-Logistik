@@ -83,14 +83,24 @@
                     {{-- Kata Sandi --}}
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-1 font-montserrat">Kata Sandi</label>
-                        <input 
-                            id="password" 
-                            name="password" 
-                            type="password" 
-                            placeholder="Masukkan Kata Sandi"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a237e] focus:border-transparent outline-none transition font-montserrat @error('password') border-red-500 @enderror"
-                            required
-                        >
+                        <div class="relative">
+                            <input 
+                                id="password" 
+                                name="password" 
+                                type="password" 
+                                placeholder="Masukkan Kata Sandi"
+                                class="w-full px-4 py-3 pr-11 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a237e] focus:border-transparent outline-none transition font-montserrat @error('password') border-red-500 @enderror"
+                                required
+                            >
+                            <button 
+                                type="button" 
+                                onclick="togglePasswordVisibility()" 
+                                class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none cursor-pointer"
+                                title="Lihat / Sembunyikan Kata Sandi"
+                            >
+                                <span id="eyeIcon" class="text-xl select-none">🙈</span>
+                            </button>
+                        </div>
                         @error('password')
                             <p class="text-red-500 text-xs mt-1 font-montserrat">{{ $message }}</p>
                         @enderror
@@ -130,5 +140,19 @@
         </div>
 
     </div>
+
+    <script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.textContent = '👁️';
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.textContent = '🙈';
+        }
+    }
+    </script>
 </body>
 </html>

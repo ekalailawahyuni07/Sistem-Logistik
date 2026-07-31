@@ -4,6 +4,84 @@
     <meta charset="UTF-8">
     <title>Surat Jalan Admin</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <style>
+        html { height: 100%; }
+        body { height: 100vh; overflow: hidden; }
+        .sidebar { overflow-y: auto; height: 100vh; }
+        .content {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            padding: 18px 28px;
+        }
+        .sj-page {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+        }
+        .topbar { flex-shrink: 0; margin-bottom: 12px; }
+        .card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 14px 16px;
+        }
+        .card-header { flex-shrink: 0; margin-bottom: 10px; }
+        .sj-areas-container {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding-right: 4px;
+        }
+        .area-section {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .stok-table-wrapper, .table-responsive {
+            max-height: 250px !important;
+            overflow-y: auto !important;
+            overflow-x: auto !important;
+        }
+        .stok-table-wrapper::-webkit-scrollbar, .table-responsive::-webkit-scrollbar { width: 5px; height: 5px; }
+        .stok-table-wrapper::-webkit-scrollbar-track, .table-responsive::-webkit-scrollbar-track { background: #f1f5f9; }
+        .stok-table-wrapper::-webkit-scrollbar-thumb, .table-responsive::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 3px; }
+        .material-table thead th {
+            position: sticky !important;
+            top: 0 !important;
+            background: #1a3a6e !important;
+            color: #fff !important;
+            z-index: 10 !important;
+            padding: 8px 10px;
+            text-align: center;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .filter-area {
+            height: 38px !important;
+            padding: 0 34px 0 12px !important;
+            border: 1.5px solid #cdd5e0 !important;
+            border-radius: 8px !important;
+            font-size: 13px !important;
+            background-color: #ffffff !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%231a237e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 10px center !important;
+            background-size: 14px 14px !important;
+            color: #2d3748 !important;
+            outline: none !important;
+            cursor: pointer !important;
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            box-sizing: border-box !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -135,6 +213,7 @@
         </div>
 
 
+        <div class="sj-areas-container">
         @foreach($areas as $area)
 
         <div class="area-section">
@@ -216,6 +295,7 @@
                             </div>
                             </div>
                             @endforeach
+        </div><!-- /.sj-areas-container -->
     </div>
     </div>
 </div>
@@ -255,7 +335,7 @@
                 class="btn-logout-modal"
                 onclick="submitLogout()">
 
-                Ya, Logout
+                Ya, Keluar
 
             </button>
 
