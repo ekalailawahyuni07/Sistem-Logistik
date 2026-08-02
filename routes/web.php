@@ -147,6 +147,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/material-masuk/{id}/edit', [MaterialMasukController::class, 'edit'])->name('material.masuk.edit');
     Route::put('/material-masuk/{id}', [MaterialMasukController::class, 'update'])->name('material.masuk.update');
     Route::delete('/material-masuk/dokumen/{id}', [MaterialMasukController::class, 'destroyDokumen'])->name('material.masuk.dokumen.destroy');
+    Route::delete('/material-masuk/{id}', [MaterialMasukController::class, 'destroy'])->name('material.masuk.destroy');
 
     Route::get('/material-keluar', [MaterialKeluarController::class, 'index'])->name('material.keluar');
     Route::get('/material-keluar/tambah', [MaterialKeluarController::class, 'create'])->name('material.keluar.create');
@@ -154,6 +155,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/material-keluar/{id}/edit', [MaterialKeluarController::class, 'edit'])->name('material.keluar.edit');
     Route::put('/material-keluar/{id}', [MaterialKeluarController::class, 'update'])->name('material.keluar.update');
     Route::delete('/material-keluar/dokumen/{id}', [MaterialKeluarController::class, 'destroyDokumen'])->name('material.keluar.dokumen.destroy');
+    Route::delete('/material-keluar/{id}', [MaterialKeluarController::class, 'destroy'])->name('material.keluar.destroy');
 
     Route::get('/cluster', [ClusterController::class, 'index'])->name('cluster');
     Route::get('/cluster/tambah', [ClusterController::class, 'create'])->name('cluster.create');

@@ -56,7 +56,7 @@
     </div>
 </div>
 
-<div class="content">
+<div class="content page-fit-screen">
     <div class="topbar">
         <h1>Daftar Kluster</h1>
         <h2>👤 Halo, {{ Auth::user()->nama_user }} (Admin)</h2>
@@ -101,68 +101,70 @@
             </div>
         @endif
 
-        <table class="material-table">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Kode Cluster</th>
-                    <th>Nama Cluster</th>
-                    <th>Area</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @forelse($clusters as $cluster)
-                    <tr data-area="{{ strtolower($cluster->area->nama_area ?? '') }}">
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $cluster->kode_cluster }}</td>
-                        <td>{{ $cluster->nama_cluster }}</td>
-
-                        <td>
-                            {{ $cluster->area->nama_area ?? '-' }}
-                        </td>
-
-                        <td>
-                            <div class="aksi-buttons">
-
-                                <a href="{{ route('admin.cluster.edit', $cluster->id_cluster) }}"
-                                    class="btn-edit">
-                                    Edit
-                                </a>
-
-                                <a href="{{ route('admin.cluster.show', $cluster->id_cluster) }}"
-                                    class="btn-view">
-                                    Lihat
-                                </a>
-
-                                <form
-                                    id="hapusForm{{ $cluster->id_cluster }}"
-                                    action="{{ route('admin.cluster.destroy', $cluster->id_cluster) }}"
-                                    method="POST"
-                                    style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button
-                                        type="button"
-                                        class="btn-delete"
-                                        onclick="bukaModalHapus('hapusForm{{ $cluster->id_cluster }}')">
-                                        Hapus
-                                    </button>
-                                </form>
-
-                            </div>
-                        </td>
-                    </tr>
-                @empty
+        <div class="material-table-container">
+            <table class="material-table">
+                <thead>
                     <tr>
-                        <td colspan="5" style="text-align:center;">
-                            Belum ada data cluster
-                        </td>
+                        <th>No</th>
+                        <th>Kode Cluster</th>
+                        <th>Nama Cluster</th>
+                        <th>Area</th>
+                        <th>Aksi</th>
                     </tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+
+                <tbody>
+                    @forelse($clusters as $cluster)
+                        <tr data-area="{{ strtolower($cluster->area->nama_area ?? '') }}">
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $cluster->kode_cluster }}</td>
+                            <td>{{ $cluster->nama_cluster }}</td>
+
+                            <td>
+                                {{ $cluster->area->nama_area ?? '-' }}
+                            </td>
+
+                            <td>
+                                <div class="aksi-buttons">
+
+                                    <a href="{{ route('admin.cluster.edit', $cluster->id_cluster) }}"
+                                        class="btn-edit">
+                                        Edit
+                                    </a>
+
+                                    <a href="{{ route('admin.cluster.show', $cluster->id_cluster) }}"
+                                        class="btn-view">
+                                        Lihat
+                                    </a>
+
+                                    <form
+                                        id="hapusForm{{ $cluster->id_cluster }}"
+                                        action="{{ route('admin.cluster.destroy', $cluster->id_cluster) }}"
+                                        method="POST"
+                                        style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button
+                                            type="button"
+                                            class="btn-delete"
+                                            onclick="bukaModalHapus('hapusForm{{ $cluster->id_cluster }}')">
+                                            Hapus
+                                        </button>
+                                    </form>
+
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" style="text-align:center;">
+                                Belum ada data cluster
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

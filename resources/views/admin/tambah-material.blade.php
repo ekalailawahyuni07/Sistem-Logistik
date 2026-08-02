@@ -68,7 +68,7 @@
 
         <div class="form-header">
             <div>
-                <h1>📦 Tambah Material</h1>
+                <h1>Tambah Material</h1>
                 <p>Lengkapi data material baru sebelum menyimpannya ke dalam sistem</p>
             </div>
         </div>

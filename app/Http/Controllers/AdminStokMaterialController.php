@@ -50,6 +50,18 @@ class AdminStokMaterialController extends Controller
 
             ->values();
 
+            foreach ($materials as $m) {
+                $transaksiProject = \App\Models\TransaksiMaterial::where('id_material', $m->id_material)
+                    ->where('jenis_transaksi', 'masuk')
+                    ->where('id_area', $area->id_area)
+                    ->whereNotNull('project')
+                    ->where('project', '!=', '')
+                    ->orderBy('id_transaksi', 'desc')
+                    ->value('project');
+
+                $m->project_display = $transaksiProject ?: $m->project;
+            }
+
             $area->materials = $materials;
 
             $area->total_stock = $materials->sum(function ($m) {

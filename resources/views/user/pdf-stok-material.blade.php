@@ -125,7 +125,7 @@
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $material->kode_material }}</td>
                     <td class="text-left">{{ $material->nama_material }}</td>
-                    <td class="text-left">{{ $material->project ?? '-' }}</td>
+                    <td class="text-left">{{ $material->project_display ?? $material->project ?? '-' }}</td>
                     <td>{{ $material->satuan }}</td>
                     <td class="text-right">{{ number_format($masuk) }}</td>
                     <td class="text-right">{{ number_format($keluar) }}</td>

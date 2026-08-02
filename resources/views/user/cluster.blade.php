@@ -94,7 +94,7 @@
     </div>
 </div>
 
-<div class="content user-page-container">
+<div class="content page-fit-screen">
     <div class="topbar">
         <h1>Daftar Kluster</h1>
         <h2>👤 Halo, {{ Auth::user()->nama_user }}! (Petugas)</h2>

@@ -74,7 +74,7 @@ class RegisteredUserController extends Controller
             ->route('login')
             ->with(
                 'success',
-                'Registrasi berhasil. Akun Anda sedang menunggu verifikasi Admin. Silakan login kembali setelah akun disetujui.'
+                'Pendaftaran akun Anda telah berhasil! Silakan tunggu verifikasi dan persetujuan dari Admin sebelum masuk ke dalam sistem.'
             );
     }
 }

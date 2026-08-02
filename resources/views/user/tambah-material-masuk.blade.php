@@ -24,7 +24,11 @@
     </div>
 
     <div class="profile">
-        <div class="avatar">👤</div>
+        @if(Auth::user() && Auth::user()->foto_profile)
+            <img src="{{ asset('storage/' . Auth::user()->foto_profile) }}" alt="Foto Profile" class="profile-img">
+        @else
+            <div class="avatar">👤</div>
+        @endif
         <h4>{{ Auth::user()->nama_user }}</h4>
         <p>{{ Auth::user()->email }}</p>
     </div>

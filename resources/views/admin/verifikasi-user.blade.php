@@ -60,7 +60,7 @@
     </div>
 </div>
 
-<div class="content">
+<div class="content page-fit-screen">
 
     <div class="topbar">
         <h1>Verifikasi User</h1>
@@ -111,149 +111,151 @@
             </div>
         </div>
 
-        <table class="material-table" id="tabelUser">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Nama User</th>
-                    <th>Email</th>
-                    <th>Nomor Telepon</th>
-                    <th>Area</th>
-                    <th>Role</th>
-                    <th>Tanggal Daftar</th>
-                    <th>Status</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @forelse($users as $user)
+        <div class="material-table-container">
+            <table class="material-table" id="tabelUser">
+                <thead>
                     <tr>
-                        <td>{{ $loop->iteration }}</td>
+                        <th>No</th>
+                        <th>Nama User</th>
+                        <th>Email</th>
+                        <th>Nomor Telepon</th>
+                        <th>Area</th>
+                        <th>Role</th>
+                        <th>Tanggal Daftar</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
 
-                        <td>{{ $user->nama_user }}</td>
+                <tbody>
+                    @forelse($users as $user)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
 
-                        <td>{{ $user->email }}</td>
+                            <td>{{ $user->nama_user }}</td>
 
-                        <td>{{ $user->no_telp ?? '-' }}</td>
+                            <td>{{ $user->email }}</td>
 
-                        <td>
-                            {{ $user->area->nama_area ?? '-' }}
-                        </td>
+                            <td>{{ $user->no_telp ?? '-' }}</td>
 
-                        <td>
-                            {{ $user->role->nama_role ?? '-' }}
-                        </td>
+                            <td>
+                                {{ $user->area->nama_area ?? '-' }}
+                            </td>
 
-                        <td>
-                            {{ optional($user->created_at)->format('d-m-Y H:i') ?? '-' }}
-                        </td>
+                            <td>
+                                {{ $user->role->nama_role ?? '-' }}
+                            </td>
 
-                        <td>
-                            @if($user->status_validasi === 'pending')
-                                <span class="status-pending">
-                                    Menunggu
-                                </span>
+                            <td>
+                                {{ optional($user->created_at)->format('d-m-Y H:i') ?? '-' }}
+                            </td>
 
-                            @elseif($user->status_validasi === 'disetujui')
-                                <span class="status-disetujui">
-                                    Disetujui
-                                </span>
+                            <td>
+                                @if($user->status_validasi === 'pending')
+                                    <span class="status-pending">
+                                        Menunggu
+                                    </span>
 
-                            @else
-                                <span class="status-ditolak">
-                                    Ditolak
-                                </span>
-                            @endif
-                        </td>
+                                @elseif($user->status_validasi === 'disetujui')
+                                    <span class="status-disetujui">
+                                        Disetujui
+                                    </span>
 
-                        <td>
-                            @if($user->status_validasi === 'pending')
+                                @else
+                                    <span class="status-ditolak">
+                                        Ditolak
+                                    </span>
+                                @endif
+                            </td>
 
-                                <div class="verifikasi-actions">
+                            <td>
+                                @if($user->status_validasi === 'pending')
+
+                                    <div class="verifikasi-actions">
+
+                                        <form
+                                            method="POST"
+                                            action="{{ route('admin.verifikasi.user.setujui', $user->id_user) }}"
+                                            class="form-setujui"
+                                        >
+                                            @csrf
+                                            @method('PATCH')
+
+                                            <button
+                                                type="button"
+                                                class="btn-setujui"
+                                                onclick="bukaModalVerifikasi(
+                                                    this,
+                                                    'setujui',
+                                                    '{{ addslashes($user->nama_user) }}'
+                                                )"
+                                            >
+                                                ✓ Setujui
+                                            </button>
+                                        </form>
+
+                                        <form
+                                            method="POST"
+                                            action="{{ route('admin.verifikasi.user.tolak', $user->id_user) }}"
+                                            class="form-tolak"
+                                        >
+                                            @csrf
+                                            @method('PATCH')
+
+                                            <button
+                                                type="button"
+                                                class="btn-tolak"
+                                                onclick="bukaModalVerifikasi(
+                                                    this,
+                                                    'tolak',
+                                                    '{{ addslashes($user->nama_user) }}'
+                                                )"
+                                            >
+                                                ✕ Tolak
+                                            </button>
+                                        </form>
+
+                                    </div>
+
+                                @elseif($user->status_validasi === 'disetujui')
 
                                     <form
                                         method="POST"
-                                        action="{{ route('admin.verifikasi.user.setujui', $user->id_user) }}"
-                                        class="form-setujui"
+                                        action="{{ route('admin.verifikasi.user.destroy', $user->id_user) }}"
+                                        class="form-hapus-user"
+                                        style="display:inline-block;"
                                     >
                                         @csrf
-                                        @method('PATCH')
+                                        @method('DELETE')
 
                                         <button
                                             type="button"
-                                            class="btn-setujui"
-                                            onclick="bukaModalVerifikasi(
+                                            class="btn-delete"
+                                            onclick="bukaModalHapusUser(
                                                 this,
-                                                'setujui',
                                                 '{{ addslashes($user->nama_user) }}'
                                             )"
                                         >
-                                            ✓ Setujui
+                                            Hapus
                                         </button>
                                     </form>
 
-                                    <form
-                                        method="POST"
-                                        action="{{ route('admin.verifikasi.user.tolak', $user->id_user) }}"
-                                        class="form-tolak"
-                                    >
-                                        @csrf
-                                        @method('PATCH')
+                                @else
+                                    <span>-</span>
+                                @endif
+                            </td>
+                        </tr>
 
-                                        <button
-                                            type="button"
-                                            class="btn-tolak"
-                                            onclick="bukaModalVerifikasi(
-                                                this,
-                                                'tolak',
-                                                '{{ addslashes($user->nama_user) }}'
-                                            )"
-                                        >
-                                            ✕ Tolak
-                                        </button>
-                                    </form>
-
-                                </div>
-
-                            @elseif($user->status_validasi === 'disetujui')
-
-                                <form
-                                    method="POST"
-                                    action="{{ route('admin.verifikasi.user.destroy', $user->id_user) }}"
-                                    class="form-hapus-user"
-                                    style="display:inline-block;"
-                                >
-                                    @csrf
-                                    @method('DELETE')
-
-                                    <button
-                                        type="button"
-                                        class="btn-delete"
-                                        onclick="bukaModalHapusUser(
-                                            this,
-                                            '{{ addslashes($user->nama_user) }}'
-                                        )"
-                                    >
-                                        Hapus
-                                    </button>
-                                </form>
-
-                            @else
-                                <span>-</span>
-                            @endif
-                        </td>
-                    </tr>
-
-                @empty
-                    <tr>
-                        <td colspan="9" style="text-align:center;">
-                            Belum ada pengajuan akun user.
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                    @empty
+                        <tr>
+                            <td colspan="9" style="text-align:center;">
+                                Belum ada pengajuan akun user.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

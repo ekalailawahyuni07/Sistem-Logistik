@@ -13,94 +13,43 @@
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
-            padding: 18px 28px;
+            padding: 20px 30px;
+            box-sizing: border-box;
         }
-        .user-page-container .topbar { flex-shrink: 0; margin-bottom: 12px; }
+        .user-page-container .topbar { flex-shrink: 0; margin-bottom: 14px; }
         .user-page-container .card {
             flex: 1;
             display: flex;
             flex-direction: column;
+            min-height: 0;
             overflow: hidden;
-            padding: 14px 16px;
+            padding: 20px 24px;
+            margin-bottom: 0;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
-        .material-card-header { flex-shrink: 0; margin-bottom: 12px; }
-        .material-toolbar {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .material-search {
-            height: 38px;
-            padding: 0 14px;
-            border: 1.5px solid #cdd5e0;
-            border-radius: 8px;
-            font-size: 13px;
-            box-sizing: border-box;
-            outline: none;
-        }
-        .filter-area {
-            height: 38px !important;
-            padding: 0 34px 0 14px !important;
-            border: 1.5px solid #cdd5e0 !important;
-            border-radius: 8px !important;
-            font-size: 13px !important;
-            background-color: #ffffff !important;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%231a237e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
-            background-repeat: no-repeat !important;
-            background-position: right 10px center !important;
-            background-size: 14px 14px !important;
-            color: #2d3748 !important;
-            outline: none !important;
-            cursor: pointer !important;
-            appearance: none !important;
-            -webkit-appearance: none !important;
-            -moz-appearance: none !important;
-            box-sizing: border-box !important;
-        }
-        .filter-area:focus {
-            border-color: #1a237e;
-        }
-        .btn-pdf {
-            height: 38px;
-            padding: 0 16px;
-            background: #e53e3e;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            white-space: nowrap;
-            box-sizing: border-box;
-        }
-        .btn-pdf:hover {
-            background: #c53030;
-        }
-        .table-container-scroll {
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: auto;
+        .material-card-header { flex-shrink: 0; margin-bottom: 14px; }
+        .table-container-scroll, .stok-table-wrapper, .table-scroll {
+            flex: 1 !important;
+            max-height: none !important;
+            overflow-y: auto !important;
+            overflow-x: auto !important;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
         }
         .table-container-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-        .table-container-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
-        .table-container-scroll::-webkit-scrollbar-thumb { background: #a0aec0; border-radius: 4px; }
+        .table-container-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+        .table-container-scroll::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 3px; }
         .material-table thead th {
-            position: sticky;
-            top: 0;
-            background: #1a3a6e;
-            color: #ffffff;
-            z-index: 2;
-            padding: 10px;
+            position: sticky !important;
+            top: 0 !important;
+            background: #1a3a6e !important;
+            color: #ffffff !important;
+            z-index: 10 !important;
+            padding: 10px 12px;
             text-align: center;
+            font-weight: 600;
             white-space: nowrap;
         }
     </style>
@@ -182,7 +131,7 @@
                 </select>
 
                 <a href="{{ route('stok.material.pdf') }}" class="btn-pdf" id="btnPdfStok">
-                    📄 Export PDF
+                    Export PDF
                 </a>
             </div>
         </div>
@@ -211,11 +160,11 @@
                             $stock = $masuk - $keluar;
                         @endphp
 
-                        <tr data-project="{{ strtolower($material->project ?? '') }}">
+                        <tr data-project="{{ strtolower($material->project_display ?? $material->project ?? '') }}">
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $material->kode_material }}</td>
                             <td>{{ $material->nama_material }}</td>
-                            <td>{{ $material->project ?? '-' }}</td>
+                            <td>{{ $material->project_display ?? $material->project ?? '-' }}</td>
                             <td>{{ $material->satuan }}</td>
                             <td class="text-right">{{ $masuk }}</td>
                             <td class="text-right">{{ $keluar }}</td>
@@ -238,7 +187,7 @@
                                 @elseif($stock <= 10)
                                     Stok menipis
                                 @else
-                                    -
+                                    Stok aman
                                 @endif
                             </td>
                         </tr>

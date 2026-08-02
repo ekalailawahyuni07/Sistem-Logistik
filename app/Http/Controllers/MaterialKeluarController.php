@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use App\Models\Cluster;
 
@@ -60,20 +61,56 @@ class MaterialKeluarController extends Controller
 
     public function create()
     {
-        $materials = Material::withSum(
-            ['transaksiMaterial as total_masuk' => function ($q) {
-                $q->where('jenis_transaksi', 'masuk');
-            }],
-            'jumlah'
-        )
-        ->withSum(
-            ['transaksiMaterial as total_keluar' => function ($q) {
-                $q->where('jenis_transaksi', 'keluar');
-            }],
-            'jumlah'
-        )
-        ->orderBy('kode_material', 'asc')
-        ->get();
+        $user = Auth::user();
+
+        // 1. Filter Cluster sesuai Area Petugas
+        if ($user->id_role != 1) {
+            $clusters = Cluster::where('id_area', $user->id_area)
+                ->orderBy('kode_cluster', 'asc')
+                ->get();
+        } else {
+            $clusters = Cluster::orderBy('kode_cluster', 'asc')->get();
+        }
+
+        // 2. Filter Material & Perhitungan Stok Spesifik Per Area
+        if ($user->id_role != 1) {
+            $materials = Material::withSum(
+                ['transaksiMaterial as total_masuk' => function ($q) use ($user) {
+                    $q->where('jenis_transaksi', 'masuk')->where('id_area', $user->id_area);
+                }],
+                'jumlah'
+            )
+            ->withSum(
+                ['transaksiMaterial as total_keluar' => function ($q) use ($user) {
+                    $q->where('jenis_transaksi', 'keluar')->where('id_area', $user->id_area);
+                }],
+                'jumlah'
+            )
+            ->whereHas('transaksiMaterial', function ($q) use ($user) {
+                $q->where('id_area', $user->id_area);
+            })
+            ->orderBy('kode_material', 'asc')
+            ->get();
+
+            if ($materials->isEmpty()) {
+                $materials = Material::orderBy('kode_material', 'asc')->get();
+            }
+        } else {
+            $materials = Material::withSum(
+                ['transaksiMaterial as total_masuk' => function ($q) {
+                    $q->where('jenis_transaksi', 'masuk');
+                }],
+                'jumlah'
+            )
+            ->withSum(
+                ['transaksiMaterial as total_keluar' => function ($q) {
+                    $q->where('jenis_transaksi', 'keluar');
+                }],
+                'jumlah'
+            )
+            ->orderBy('kode_material', 'asc')
+            ->get();
+        }
 
         foreach ($materials as $material) {
             $material->stok =
@@ -81,14 +118,32 @@ class MaterialKeluarController extends Controller
                 ($material->total_keluar ?? 0);
         }
 
-        $clusters = Cluster::orderBy('kode_cluster', 'asc')->get();
+        // 3. Filter Project Spesifik Per Area
+        if ($user->id_role != 1) {
+            $projects = TransaksiMaterial::where('id_area', $user->id_area)
+                ->whereNotNull('project')
+                ->where('project', '!=', '')
+                ->select('project')
+                ->distinct()
+                ->orderBy('project', 'asc')
+                ->get();
 
-        $projects = Material::select('project')
-            ->whereNotNull('project')
-            ->where('project', '!=', '')
-            ->distinct()
-            ->orderBy('project')
-            ->get();
+            if ($projects->isEmpty()) {
+                $projects = Material::select('project')
+                    ->whereNotNull('project')
+                    ->where('project', '!=', '')
+                    ->distinct()
+                    ->orderBy('project')
+                    ->get();
+            }
+        } else {
+            $projects = Material::select('project')
+                ->whereNotNull('project')
+                ->where('project', '!=', '')
+                ->distinct()
+                ->orderBy('project')
+                ->get();
+        }
 
         if (request()->is('admin/*')) {
             return view(
@@ -180,6 +235,8 @@ class MaterialKeluarController extends Controller
             'no_bukti.required' => 'Nomor bukti atau surat jalan wajib diisi.',
         ]);
 
+        $user = Auth::user();
+
         foreach ($request->id_material as $index => $idMaterial) {
 
             if (empty($idMaterial)) {
@@ -194,7 +251,21 @@ class MaterialKeluarController extends Controller
 
             $material = Material::findOrFail($idMaterial);
 
-            $stokSebelum = (int) $material->stok;
+            if ($user->id_role != 1) {
+                $userAreaId = $user->id_area;
+                $totalMasukArea = TransaksiMaterial::where('id_material', $idMaterial)
+                    ->where('jenis_transaksi', 'masuk')
+                    ->where('id_area', $userAreaId)
+                    ->sum('jumlah');
+                $totalKeluarArea = TransaksiMaterial::where('id_material', $idMaterial)
+                    ->where('jenis_transaksi', 'keluar')
+                    ->where('id_area', $userAreaId)
+                    ->sum('jumlah');
+                $stokSebelum = (int) ($totalMasukArea - $totalKeluarArea);
+            } else {
+                $stokSebelum = (int) $material->stok;
+            }
+
             $stokSesudah = $stokSebelum - $jumlahKeluar;
 
             if ($stokSesudah < 0) {
@@ -202,7 +273,7 @@ class MaterialKeluarController extends Controller
                     'jumlah' =>
                         'Stok material "' .
                         $material->nama_material .
-                        '" tidak mencukupi. Stok tersedia hanya ' .
+                        '" di Area Anda tidak mencukupi. Stok tersedia di area ini: ' .
                         $stokSebelum . ' ' .
                         ($material->satuan ?? '') . '.',
                 ]);
@@ -478,5 +549,27 @@ class MaterialKeluarController extends Controller
         }
         $dokumen->delete();
         return redirect()->back()->with('success', 'Dokumen berhasil dihapus!');
+    }
+
+    public function destroy($id)
+    {
+        $transaksi = TransaksiMaterial::findOrFail($id);
+
+        if ($transaksi->dokumentasiTransaksi) {
+            foreach ($transaksi->dokumentasiTransaksi as $dokumen) {
+                if ($dokumen->file_dokumentasi && Storage::disk('public')->exists($dokumen->file_dokumentasi)) {
+                    Storage::disk('public')->delete($dokumen->file_dokumentasi);
+                }
+                $dokumen->delete();
+            }
+        }
+
+        $transaksi->delete();
+
+        $route = request()->is('admin/*') ? 'admin.material.keluar' : 'material.keluar';
+
+        return redirect()
+            ->route($route)
+            ->with('success', 'Data material keluar berhasil dihapus.');
     }
 }

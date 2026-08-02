@@ -5,59 +5,52 @@
     <title>Surat Jalan Admin</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <style>
-        html { height: 100%; }
-        body { height: 100vh; overflow: hidden; }
-        .sidebar { overflow-y: auto; height: 100vh; }
         .content {
-            display: flex;
-            flex-direction: column;
             height: 100vh;
-            overflow: hidden;
-            padding: 18px 28px;
-        }
-        .sj-page {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            overflow: hidden;
-        }
-        .topbar { flex-shrink: 0; margin-bottom: 12px; }
-        .card {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            padding: 14px 16px;
-        }
-        .card-header { flex-shrink: 0; margin-bottom: 10px; }
-        .sj-areas-container {
-            flex: 1;
             overflow-y: auto;
+            padding: 22px 30px;
+            box-sizing: border-box;
+            display: block;
+        }
+        .topbar { margin-bottom: 18px; }
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: block;
+            overflow: visible;
+        }
+        .sj-areas-container {
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            padding-right: 4px;
+            gap: 20px;
         }
         .area-section {
-            border: 1px solid #e2e8f0;
+            border: 1px solid #dbe3ed;
             border-radius: 10px;
             overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.04);
+            margin-bottom: 20px;
         }
-        .stok-table-wrapper, .table-responsive {
-            max-height: 250px !important;
+        .stok-table-wrapper, .table-responsive, .table-scroll {
+            max-height: 220px !important;
             overflow-y: auto !important;
             overflow-x: auto !important;
+            border-top: 1px solid #e2e8f0;
         }
-        .stok-table-wrapper::-webkit-scrollbar, .table-responsive::-webkit-scrollbar { width: 5px; height: 5px; }
-        .stok-table-wrapper::-webkit-scrollbar-track, .table-responsive::-webkit-scrollbar-track { background: #f1f5f9; }
-        .stok-table-wrapper::-webkit-scrollbar-thumb, .table-responsive::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 3px; }
+        .stok-table-wrapper::-webkit-scrollbar, .table-responsive::-webkit-scrollbar, .table-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+        .stok-table-wrapper::-webkit-scrollbar-track, .table-responsive::-webkit-scrollbar-track, .table-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+        .stok-table-wrapper::-webkit-scrollbar-thumb, .table-responsive::-webkit-scrollbar-thumb, .table-scroll::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 3px; }
         .material-table thead th {
             position: sticky !important;
             top: 0 !important;
             background: #1a3a6e !important;
             color: #fff !important;
             z-index: 10 !important;
-            padding: 8px 10px;
+            padding: 9px 12px;
             text-align: center;
             font-weight: 600;
             white-space: nowrap;

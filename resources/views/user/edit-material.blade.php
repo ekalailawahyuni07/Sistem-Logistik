@@ -59,7 +59,6 @@
 
     <div class="form-card">
         <div class="form-header">
-            <div class="form-icon">✏️</div>
             <div>
                 <h2>Edit Material</h2>
                 <p>Perbarui informasi material pada form di bawah ini.</p>

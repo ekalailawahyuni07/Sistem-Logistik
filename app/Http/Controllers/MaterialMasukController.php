@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Cluster;
 
 
@@ -49,14 +50,35 @@ class MaterialMasukController extends Controller
 
     public function create()
     {
+        $user = Auth::user();
+
         $materials = Material::orderBy('nama_material')->get();
 
-        $projects = Material::select('project')
-            ->whereNotNull('project')
-            ->where('project', '!=', '')
-            ->distinct()
-            ->orderBy('project')
-            ->get();
+        if ($user->id_role != 1) {
+            $projects = TransaksiMaterial::where('id_area', $user->id_area)
+                ->whereNotNull('project')
+                ->where('project', '!=', '')
+                ->select('project')
+                ->distinct()
+                ->orderBy('project', 'asc')
+                ->get();
+
+            if ($projects->isEmpty()) {
+                $projects = Material::select('project')
+                    ->whereNotNull('project')
+                    ->where('project', '!=', '')
+                    ->distinct()
+                    ->orderBy('project')
+                    ->get();
+            }
+        } else {
+            $projects = Material::select('project')
+                ->whereNotNull('project')
+                ->where('project', '!=', '')
+                ->distinct()
+                ->orderBy('project')
+                ->get();
+        }
 
         if (request()->is('admin/*')) {
 
@@ -285,5 +307,27 @@ class MaterialMasukController extends Controller
         }
         $dokumen->delete();
         return redirect()->back()->with('success', 'Dokumen berhasil dihapus!');
+    }
+
+    public function destroy($id)
+    {
+        $transaksi = TransaksiMaterial::findOrFail($id);
+
+        if ($transaksi->dokumentasiTransaksi) {
+            foreach ($transaksi->dokumentasiTransaksi as $dokumen) {
+                if ($dokumen->file_dokumentasi && Storage::disk('public')->exists($dokumen->file_dokumentasi)) {
+                    Storage::disk('public')->delete($dokumen->file_dokumentasi);
+                }
+                $dokumen->delete();
+            }
+        }
+
+        $transaksi->delete();
+
+        $route = request()->is('admin/*') ? 'admin.material.masuk' : 'material.masuk';
+
+        return redirect()
+            ->route($route)
+            ->with('success', 'Data material masuk berhasil dihapus.');
     }
 }

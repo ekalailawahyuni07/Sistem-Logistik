@@ -22,125 +22,51 @@
         }
 
         .stok-material-page {
-            display: flex;
-            flex-direction: column;
             height: 100vh;
-            overflow: hidden;
-            padding: 18px 28px;
+            overflow-y: auto;
+            padding: 22px 30px;
+            box-sizing: border-box;
+            display: block;
         }
 
         .stok-material-page .topbar {
-            flex-shrink: 0;
-            margin-bottom: 12px;
+            margin-bottom: 18px;
         }
 
         .stok-material-page .card {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            padding: 14px 16px;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: block;
+            overflow: visible;
         }
 
         .stok-material-page .card-header {
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
-        .stok-material-page .card-header h2 {
-            margin: 0;
-            font-size: 17px;
-            white-space: nowrap;
-        }
-
-        .stok-toolbar {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .stok-toolbar input {
-            height: 38px;
-            padding: 0 12px;
-            border: 1.5px solid #cdd5e0;
-            border-radius: 8px;
-            font-size: 13px;
-            width: 180px;
-            box-sizing: border-box;
-            outline: none;
-        }
-
-        .filter-area {
-            height: 38px !important;
-            padding: 0 34px 0 12px !important;
-            border: 1.5px solid #cdd5e0 !important;
-            border-radius: 8px !important;
-            font-size: 13px !important;
-            background-color: #ffffff !important;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%231a237e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
-            background-repeat: no-repeat !important;
-            background-position: right 10px center !important;
-            background-size: 14px 14px !important;
-            color: #2d3748 !important;
-            outline: none !important;
-            cursor: pointer !important;
-            appearance: none !important;
-            -webkit-appearance: none !important;
-            -moz-appearance: none !important;
-            box-sizing: border-box !important;
-        }
-
-        .btn-pdf {
-            height: 38px;
-            padding: 0 16px;
-            background: #e53e3e;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            box-sizing: border-box;
-            text-decoration: none;
-        }
-
-        /* Scrollable area list */
         .stok-areas-list {
-            flex: 1;
-            overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            padding-right: 4px;
-        }
-
-        .stok-areas-list::-webkit-scrollbar {
-            width: 6px;
-        }
-        .stok-areas-list::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 4px;
-        }
-        .stok-areas-list::-webkit-scrollbar-thumb {
-            background: #a0aec0;
-            border-radius: 4px;
+            gap: 20px;
         }
 
         .area-section {
-            border: 1px solid #e2e8f0;
+            border: 1px solid #dbe3ed;
             border-radius: 10px;
             overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.04);
+            margin-bottom: 20px;
+        }
+
+        .stok-table-wrapper, .table-scroll {
+            max-height: 220px !important;
+            overflow-y: auto !important;
+            overflow-x: auto !important;
+            border-top: 1px solid #e2e8f0;
         }
 
         .area-header {
@@ -399,7 +325,7 @@
 
                             <td>
                                 <span style="background:#e8f0fe;color:#1a56db;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:600;white-space:nowrap;">
-                                    {{ $material->project ?? '-' }}
+                                    {{ $material->project_display ?? $material->project ?? '-' }}
                                 </span>
                             </td>
 

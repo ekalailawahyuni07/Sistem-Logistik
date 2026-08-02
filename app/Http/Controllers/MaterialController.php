@@ -37,7 +37,7 @@ class MaterialController extends Controller
     public function store(Request $request)
     {
         Material::create([
-            'id_cluster'     => 1,
+            'id_cluster'     => $request->id_cluster ?? \App\Models\Cluster::first()?->id_cluster ?? 1,
             'kode_material'  => $request->kode_material,
             'nama_material'  => $request->nama_material,
             'project'        => $request->project,
@@ -133,6 +133,20 @@ class MaterialController extends Controller
             return $stock > 0;
         });
 
+        foreach ($materials as $material) {
+            $transaksiProject = \App\Models\TransaksiMaterial::where('id_material', $material->id_material)
+                ->where('jenis_transaksi', 'masuk')
+                ->when($user && $user->id_role != 1, function ($q) use ($user) {
+                    $q->where('id_area', $user->id_area);
+                })
+                ->whereNotNull('project')
+                ->where('project', '!=', '')
+                ->orderBy('id_transaksi', 'desc')
+                ->value('project');
+
+            $material->project_display = $transaksiProject ?: $material->project;
+        }
+
         $totalMaterial = $materials->count();
         $totalMasuk    = $materials->sum('total_masuk');
         $totalKeluar   = $materials->sum('total_keluar');
@@ -146,12 +160,31 @@ class MaterialController extends Controller
             return $stock > 0 && $stock <= 10;
         })->count();
 
-        $projects = Material::select('project')
-            ->whereNotNull('project')
-            ->where('project', '!=', '')
-            ->distinct()
-            ->orderBy('project', 'asc')
-            ->get();
+        if ($user && $user->id_role != 1) {
+            $projects = \App\Models\TransaksiMaterial::where('id_area', $user->id_area)
+                ->whereNotNull('project')
+                ->where('project', '!=', '')
+                ->select('project')
+                ->distinct()
+                ->orderBy('project', 'asc')
+                ->get();
+
+            if ($projects->isEmpty()) {
+                $projects = Material::select('project')
+                    ->whereNotNull('project')
+                    ->where('project', '!=', '')
+                    ->distinct()
+                    ->orderBy('project', 'asc')
+                    ->get();
+            }
+        } else {
+            $projects = Material::select('project')
+                ->whereNotNull('project')
+                ->where('project', '!=', '')
+                ->distinct()
+                ->orderBy('project', 'asc')
+                ->get();
+        }
 
         if (request()->is('admin/*')) {
             return view('admin.stok-material', compact(
@@ -220,6 +253,20 @@ class MaterialController extends Controller
             $stock = ($item->total_masuk ?? 0) - ($item->total_keluar ?? 0);
             return $stock > 0;
         });
+
+        foreach ($materials as $material) {
+            $transaksiProject = \App\Models\TransaksiMaterial::where('id_material', $material->id_material)
+                ->where('jenis_transaksi', 'masuk')
+                ->when($user && $user->id_role != 1, function ($q) use ($user) {
+                    $q->where('id_area', $user->id_area);
+                })
+                ->whereNotNull('project')
+                ->where('project', '!=', '')
+                ->orderBy('id_transaksi', 'desc')
+                ->value('project');
+
+            $material->project_display = $transaksiProject ?: $material->project;
+        }
 
         $namaArea = $user->area->nama_area ?? 'Area';
 

@@ -5,53 +5,69 @@
     <title>Material Keluar Admin</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <style>
-        html { height: 100%; }
-        body { height: 100vh; overflow: hidden; }
-        .sidebar { overflow-y: auto; height: 100vh; }
         .admin-page-container {
-            display: flex;
-            flex-direction: column;
             height: 100vh;
-            overflow: hidden;
-            padding: 18px 28px;
-        }
-        .admin-page-container .topbar { flex-shrink: 0; margin-bottom: 12px; }
-        .admin-page-container .card {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            padding: 14px 16px;
-        }
-        .card-header-material { flex-shrink: 0; margin-bottom: 10px; }
-        .area-cards-container {
-            flex: 1;
             overflow-y: auto;
+            padding: 22px 30px;
+            box-sizing: border-box;
+            display: block;
+        }
+        .admin-page-container .topbar { margin-bottom: 18px; }
+        .admin-page-container .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: block;
+            overflow: visible;
+        }
+        .area-cards-container {
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            padding-right: 4px;
+            gap: 20px;
         }
         .area-card {
-            border: 1px solid #e2e8f0;
+            border: 1px solid #dbe3ed;
             border-radius: 10px;
             overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.04);
         }
-        .table-scroll, .stok-table-wrapper, .table-responsive {
-            max-height: 250px !important;
+        .area-header {
+            background: #061b40;
+            color: #ffffff;
+            padding: 12px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .area-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+        .area-header span {
+            font-size: 13px;
+            color: #dbeafe;
+        }
+        .table-scroll {
+            max-height: 220px !important;
             overflow-y: auto !important;
             overflow-x: auto !important;
+            border-top: 1px solid #e2e8f0;
         }
-        .table-scroll::-webkit-scrollbar, .stok-table-wrapper::-webkit-scrollbar { width: 5px; height: 5px; }
-        .table-scroll::-webkit-scrollbar-track, .stok-table-wrapper::-webkit-scrollbar-track { background: #f1f5f9; }
-        .table-scroll::-webkit-scrollbar-thumb, .stok-table-wrapper::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 3px; }
+        .table-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+        .table-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+        .table-scroll::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 3px; }
         .material-table thead th {
             position: sticky !important;
             top: 0 !important;
             background: #1a3a6e !important;
             color: #fff !important;
             z-index: 10 !important;
-            padding: 8px 10px;
+            padding: 9px 12px;
             text-align: center;
             font-weight: 600;
             white-space: nowrap;
@@ -168,7 +184,7 @@
 
         <div class="area-card" data-area="{{ strtolower($area->nama_area) }}">
     <div class="area-header">
-        <h3>📍 {{ $area->nama_area }}</h3>
+        <h3>{{ $area->nama_area }}</h3>
         <span>
             Total Material Keluar :
             {{ $area->transaksiMaterial->count() }}

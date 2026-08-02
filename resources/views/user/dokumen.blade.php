@@ -13,35 +13,43 @@
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
-            padding: 18px 28px;
+            padding: 20px 30px;
+            box-sizing: border-box;
         }
-        .user-page-container .topbar { flex-shrink: 0; margin-bottom: 12px; }
+        .user-page-container .topbar { flex-shrink: 0; margin-bottom: 14px; }
         .user-page-container .card {
             flex: 1;
             display: flex;
             flex-direction: column;
+            min-height: 0;
             overflow: hidden;
-            padding: 14px 16px;
+            padding: 20px 24px;
+            margin-bottom: 0;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
-        .material-card-header { flex-shrink: 0; margin-bottom: 12px; }
-        .table-container-scroll {
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: auto;
+        .material-card-header { flex-shrink: 0; margin-bottom: 14px; }
+        .table-container-scroll, .stok-table-wrapper, .table-scroll {
+            flex: 1 !important;
+            max-height: none !important;
+            overflow-y: auto !important;
+            overflow-x: auto !important;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
         }
         .table-container-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-        .table-container-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
-        .table-container-scroll::-webkit-scrollbar-thumb { background: #a0aec0; border-radius: 4px; }
+        .table-container-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+        .table-container-scroll::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 3px; }
         .material-table thead th {
-            position: sticky;
-            top: 0;
-            background: #1a3a6e;
-            color: #ffffff;
-            z-index: 2;
-            padding: 10px;
+            position: sticky !important;
+            top: 0 !important;
+            background: #1a3a6e !important;
+            color: #ffffff !important;
+            z-index: 10 !important;
+            padding: 10px 12px;
             text-align: center;
+            font-weight: 600;
             white-space: nowrap;
         }
     </style>
